@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Grenat.Functional.DDD.Generator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\Callisto.Sales\\Callisto.Sales.Domain\\Callisto.Sales.Domain.csproj"
+    }
+  }
+}
