@@ -41,6 +41,16 @@ public sealed class ValueObject : INonContainerizedDddProperty, IEquatable<Value
             return {varName}.{methodName}({typeOfPropertyToSet}.Create({setterArgumentsList.ToString().RemoveLastChars(2)}));
         }}
 
+        public static {recordName} {methodName}(this {recordName} {varName}, {typeOfPropertyToSet} {varNameOfPropertyToSet})
+        {{
+            return {varName} with {{ {FieldName} = {varNameOfPropertyToSet} }};
+        }}
+
+        public static Entity<{recordName}> {methodName}(this {recordName} {varName}, ValueObject<{typeOfPropertyToSet}> {varNameOfPropertyToSet})
+        {{
+            return {varName}.SetValueObject({varNameOfPropertyToSet}, static ({varName}, {varNameOfPropertyToSet}) => {varName} with {{ {FieldName} = {varNameOfPropertyToSet} }});
+        }}
+
         public static Entity<{recordName}> {methodName}(this Entity<{recordName}> {varName}, ValueObject<{typeOfPropertyToSet}> {varNameOfPropertyToSet})
         {{
             return {varName}.SetValueObject({varNameOfPropertyToSet}, static ({varName}, {varNameOfPropertyToSet}) => {varName} with {{ {FieldName} = {varNameOfPropertyToSet} }});

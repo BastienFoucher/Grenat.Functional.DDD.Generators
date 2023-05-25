@@ -20,6 +20,16 @@ public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<
         var propertyName = FieldName.ToLowerFirstChar();
 
         return new StringBuilder().Append($@"
+        public static {recordName} Set{FieldName}(this {recordName} {varName}, ImmutableList<{InnerDddProperty.Type}> {propertyName})
+        {{
+            return {varName} with {{ {FieldName} = {propertyName} }};
+        }}
+
+        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, ImmutableList<Entity<{InnerDddProperty.Type}>> {propertyName})
+        {{
+            return {varName}.SetEntityList({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
+        }}
+
         public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, ImmutableList<Entity<{InnerDddProperty.Type}>> {propertyName})
         {{
             return {varName}.SetEntityList({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});

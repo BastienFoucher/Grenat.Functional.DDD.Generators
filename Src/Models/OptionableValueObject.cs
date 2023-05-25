@@ -20,6 +20,16 @@ public sealed class OptionableValueObject : IContainerizedDddProperty, IEquatabl
         var propertyName = FieldName.ToLowerFirstChar();
 
         return new StringBuilder().Append($@"
+        public static {recordName} Set{FieldName}(this {recordName} {varName}, Option<{InnerDddProperty.Type}> {propertyName})
+        {{
+            return {varName} with {{ {FieldName} = {propertyName} }};
+        }}
+
+        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, Option<ValueObject<{InnerDddProperty.Type}>> {propertyName})
+        {{
+            return {varName}.SetValueObjectOption({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
+        }}
+
         public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, Option<ValueObject<{InnerDddProperty.Type}>> {propertyName})
         {{
             return {varName}.SetValueObjectOption({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});

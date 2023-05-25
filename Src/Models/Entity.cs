@@ -21,6 +21,11 @@ public sealed class Entity : INonContainerizedDddProperty, IEquatable<Entity>
         var innerEntityVarName = FieldName.ToLowerFirstChar();
 
         return new StringBuilder().Append($@"
+        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, Entity<{Type}> {innerEntityVarName})
+        {{
+            return {varName}.SetEntity({innerEntityVarName}, static ({varName}, {innerEntityVarName}) => {varName} with {{ {FieldName} = {innerEntityVarName} }});
+        }}
+
         public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, Entity<{Type}> {innerEntityVarName})
         {{
             return {varName}.SetEntity({innerEntityVarName}, static ({varName}, {innerEntityVarName}) => {varName} with {{ {FieldName} = {innerEntityVarName} }});

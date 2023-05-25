@@ -1,4 +1,6 @@
-﻿namespace Grenat.Functional.DDD.Generators.Models;
+﻿using System.Reflection;
+
+namespace Grenat.Functional.DDD.Generators.Models;
 
 public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEquatable<ImmutableEntityDictionary>
 {
@@ -26,6 +28,16 @@ public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEqua
         var propertyName = FieldName.ToLowerFirstChar();
 
         return new StringBuilder().Append($@"
+        public static {recordName} Set{FieldName}(this {recordName} {varName}, ImmutableDictionary<{KeyType}, {InnerDddProperty.Type}> {propertyName})
+        {{
+            return {varName} with {{ {FieldName} = {propertyName} }};
+        }}
+
+        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, ImmutableDictionary<{KeyType}, Entity<{InnerDddProperty.Type}>> {propertyName})
+        {{
+            return {varName}.SetEntityDictionary({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
+        }}
+
         public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, ImmutableDictionary<{KeyType}, Entity<{InnerDddProperty.Type}>> {propertyName})
         {{
             return {varName}.SetEntityDictionary({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
