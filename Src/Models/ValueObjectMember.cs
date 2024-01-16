@@ -1,24 +1,33 @@
 ﻿namespace Grenat.Functional.DDD.Generators.Models;
 
-public sealed class ValueObjectProperty : IProperty, IEquatable<ValueObjectProperty>
+public sealed class ValueObjectMember : IProperty, IEquatable<ValueObjectMember>
 {
-    public ValueObjectProperty(string name, string type, string parentFieldName)
+    public ValueObjectMember(string name, string type, string parentFieldName, bool dontGenerateSetters)
     {
         FieldName = name;
         Type = type;
         ParentFieldName = parentFieldName;
+        DontGenerateSetters = dontGenerateSetters;
     }
 
     public string FieldName { get; }
     public string Type { get; }
     public string ParentFieldName { get; }
 
-    public override bool Equals(object obj)
+    public bool DontGenerateSetters { get; }
+
+    public StringBuilder GenerateSetters(string recordName, string varName)
     {
-        return Equals(obj as ValueObjectProperty);
+        throw new NotImplementedException();
     }
 
-    public bool Equals(ValueObjectProperty other)
+    #region IEquatable
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as ValueObjectMember);
+    }
+
+    public bool Equals(ValueObjectMember other)
     {
         return other is not null &&
                FieldName == other.FieldName &&
@@ -35,13 +44,14 @@ public sealed class ValueObjectProperty : IProperty, IEquatable<ValueObjectPrope
         return hashCode;
     }
 
-    public static bool operator ==(ValueObjectProperty left, ValueObjectProperty right)
+    public static bool operator ==(ValueObjectMember left, ValueObjectMember right)
     {
-        return EqualityComparer<ValueObjectProperty>.Default.Equals(left, right);
+        return EqualityComparer<ValueObjectMember>.Default.Equals(left, right);
     }
 
-    public static bool operator !=(ValueObjectProperty left, ValueObjectProperty right)
+    public static bool operator !=(ValueObjectMember left, ValueObjectMember right)
     {
         return !(left == right);
     }
+    #endregion
 }

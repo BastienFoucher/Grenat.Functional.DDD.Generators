@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Grenat.Functional.DDD.Generators.Src.Generators;
 
 namespace Grenat.Functional.DDD.Generators.Models;
 
@@ -6,8 +7,8 @@ public sealed class EntityStructure : IEquatable<EntityStructure>
 {
     public string NameSpaceName { get; set; }
     public string Name { get; set; }
-    public IEnumerable<IDddProperty> DddProperties { get; set; }
-    public StaticEntityConstructor StaticConstructor { get; set; }
+    public IEnumerable<IProperty> Properties { get; set; }
+    public Builder StaticConstructor { get; set; }
     public bool GenerateSetters { get; set; }
     public bool GenerateBuilder { get; set; }
     public bool GenerateDefaultConstructor { get; set; }
@@ -28,7 +29,7 @@ public sealed class EntityStructure : IEquatable<EntityStructure>
                GenerateBuilder == other.GenerateBuilder &&
                GenerateDefaultConstructor == other.GenerateDefaultConstructor &&
                HasDefaultContructor == other.HasDefaultContructor &&
-               DddProperties.SequenceEqual(other.DddProperties);
+               Properties.SequenceEqual(other.Properties);
     }
 
     public override int GetHashCode()
@@ -36,8 +37,8 @@ public sealed class EntityStructure : IEquatable<EntityStructure>
         int hashCode = -1992365931;
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(NameSpaceName);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-        hashCode = hashCode * -1521134295 + EqualityComparer<StaticEntityConstructor>.Default.GetHashCode(StaticConstructor);
-        hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<IDddProperty>>.Default.GetHashCode(DddProperties);
+        hashCode = hashCode * -1521134295 + EqualityComparer<Builder>.Default.GetHashCode(StaticConstructor);
+        hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<IProperty>>.Default.GetHashCode(Properties);
         hashCode = hashCode * -1521134295 + GenerateSetters.GetHashCode();
         hashCode = hashCode * -1521134295 + GenerateBuilder.GetHashCode();
         hashCode = hashCode * -1521134295 + GenerateDefaultConstructor.GetHashCode();

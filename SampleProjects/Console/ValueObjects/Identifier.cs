@@ -4,7 +4,7 @@
 public record Identifier
 {
     public const string DEFAULT_VALUE = "";
-    public const int MAX_LENGTH = 5;
+    public const int MAX_LENGTH = 10;
 
     [Value]
     public readonly string Value = "";

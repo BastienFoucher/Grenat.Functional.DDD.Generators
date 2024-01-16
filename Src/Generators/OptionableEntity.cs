@@ -1,16 +1,18 @@
-﻿namespace Grenat.Functional.DDD.Generators.Models;
+﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
 
-public sealed class OptionableEntity : IContainerizedDddProperty, IEquatable<OptionableEntity>
+namespace Grenat.Functional.DDD.Generators.Models;
+
+public sealed class OptionableEntity : IContainerizedEntityProperty, IEquatable<OptionableEntity>
 {
-    public OptionableEntity(INonContainerizedDddProperty innerDddProperty, string fieldName, string type, bool dontGenerateSetters)
+    public OptionableEntity(INonContainerizedEntityProperty innerDddProperty, string fieldName, string type, bool dontGenerateSetters)
     {
-        InnerDddProperty = innerDddProperty;
+        InnerProperty = innerDddProperty;
         FieldName = fieldName;
         Type = type;
         DontGenerateSetters = dontGenerateSetters;
     }
 
-    public INonContainerizedDddProperty InnerDddProperty { get; }
+    public INonContainerizedEntityProperty InnerProperty { get; }
     public string FieldName { get; }
     public string Type { get; }
     public bool DontGenerateSetters { get; }
@@ -20,17 +22,17 @@ public sealed class OptionableEntity : IContainerizedDddProperty, IEquatable<Opt
         var propertyName = FieldName.ToLowerFirstChar();
 
         return new StringBuilder().Append($@"
-        public static {recordName} Set{FieldName}(this {recordName} {varName}, Option<{InnerDddProperty.Type}> {propertyName})
+        public static {recordName} Set{FieldName}(this {recordName} {varName}, Option<{InnerProperty.Type}> {propertyName})
         {{
             return {varName} with {{ {FieldName} = {propertyName} }};
         }}
 
-        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, Option<Entity<{InnerDddProperty.Type}>> {propertyName})
+        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, Option<Entity<{InnerProperty.Type}>> {propertyName})
         {{
             return {varName}.SetEntityOption({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
         }}
 
-        public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, Option<Entity<{InnerDddProperty.Type}>> {propertyName})
+        public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, Option<Entity<{InnerProperty.Type}>> {propertyName})
         {{
             return {varName}.SetEntityOption({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
         }}
@@ -40,7 +42,6 @@ public sealed class OptionableEntity : IContainerizedDddProperty, IEquatable<Opt
     public (StringBuilder, ImmutableList<string>) GenerateBuilderDetails(string recordName)
     {
         var stringBuilder = new StringBuilder();
-        var generatedPrivateFields = ImmutableList<string>.Empty;
 
         stringBuilder.Append($@"
         private Option<Entity<{Type}>> {this.GetPrivateBuilderFieldName()}Option {{ get; set; }}
@@ -53,16 +54,17 @@ public sealed class OptionableEntity : IContainerizedDddProperty, IEquatable<Opt
 
         // Returning also same builder details as an entity : it is the role of the entity's static constructor
         // to decide a if an Option<Entity<T>> will be equal to "Some" or "None".
-        var innerEntity = (Entity)InnerDddProperty;
+        var innerEntity = (Entity)InnerProperty;
         return innerEntity.GenerateBuilderDetails(recordName);
     }
 
     public StringBuilder GenerateDefaultConstructorDetail()
     {
         return new StringBuilder().Append($@"
-            {FieldName} = None<{InnerDddProperty.Type}>();");
+            {FieldName} = None<{InnerProperty.Type}>();");
     }
 
+    #region IEquatable
     public override bool Equals(object obj)
     {
         return Equals(obj as OptionableEntity);
@@ -71,13 +73,13 @@ public sealed class OptionableEntity : IContainerizedDddProperty, IEquatable<Opt
     public bool Equals(OptionableEntity other)
     {
         return other is not null &&
-               EqualityComparer<INonContainerizedDddProperty>.Default.Equals(InnerDddProperty, other.InnerDddProperty) &&
+               EqualityComparer<INonContainerizedEntityProperty>.Default.Equals(InnerProperty, other.InnerProperty) &&
                FieldName == other.FieldName &&
                Type == other.Type &&
                DontGenerateSetters == other.DontGenerateSetters;
     }
 
-    public bool Equals(IDddProperty other)
+    public bool Equals(IEntityProperty other)
     {
         return other is not null &&
                FieldName == other.FieldName &&
@@ -87,7 +89,7 @@ public sealed class OptionableEntity : IContainerizedDddProperty, IEquatable<Opt
     public override int GetHashCode()
     {
         int hashCode = -1522267040;
-        hashCode = hashCode * -1521134295 + EqualityComparer<INonContainerizedDddProperty>.Default.GetHashCode(InnerDddProperty);
+        hashCode = hashCode * -1521134295 + EqualityComparer<INonContainerizedEntityProperty>.Default.GetHashCode(InnerProperty);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FieldName);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
         hashCode = hashCode * -1521134295 + DontGenerateSetters.GetHashCode();
@@ -103,18 +105,5 @@ public sealed class OptionableEntity : IContainerizedDddProperty, IEquatable<Opt
     {
         return !(left == right);
     }
-}
-
-public static partial class NamedTypeSymbolExtensions
-{
-    public static OptionableEntity GetOptionableEntity(this ISymbol memberSymbol, GeneratorSyntaxContext context)
-    {
-        var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
-
-        return new OptionableEntity(
-            namedTypeSymbol.TypeArguments[0].GetEntity(context),
-            memberSymbol.Name,
-            namedTypeSymbol.GetNamedTypeSymbol().Name,
-            memberSymbol.NoSetter(context));
-    }
+    #endregion
 }

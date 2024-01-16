@@ -1,22 +1,22 @@
-﻿using System.Reflection;
+﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
 
 namespace Grenat.Functional.DDD.Generators.Models;
 
-public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEquatable<ImmutableEntityDictionary>
+public sealed class ImmutableEntityDictionary : IContainerizedEntityProperty, IEquatable<ImmutableEntityDictionary>
 {
-    public INonContainerizedDddProperty InnerDddProperty { get; }
+    public INonContainerizedEntityProperty InnerProperty { get; }
     public string FieldName { get; }
     public string Type { get; }
     public string KeyType { get; }
     public bool DontGenerateSetters { get; }
 
-    public ImmutableEntityDictionary(INonContainerizedDddProperty innerDddProperty,
+    public ImmutableEntityDictionary(INonContainerizedEntityProperty innerDddProperty,
         string fieldName,
         string keyType,
         string type,
         bool dontGenerateSetters)
     {
-        InnerDddProperty = innerDddProperty;
+        InnerProperty = innerDddProperty;
         FieldName = fieldName;
         KeyType = keyType;
         Type = type;
@@ -28,19 +28,19 @@ public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEqua
         var propertyName = FieldName.ToLowerFirstChar();
 
         return new StringBuilder().Append($@"
-        public static {recordName} Set{FieldName}(this {recordName} {varName}, ImmutableDictionary<{KeyType}, {InnerDddProperty.Type}> {propertyName})
+        public static {recordName} Set{FieldName}(this {recordName} {varName}, ImmutableDictionary<{KeyType}, {InnerProperty.Type}> {propertyName})
         {{
             return {varName} with {{ {FieldName} = {propertyName} }};
         }}
 
-        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, ImmutableDictionary<{KeyType}, Entity<{InnerDddProperty.Type}>> {propertyName})
+        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, ImmutableDictionary<{KeyType}, Entity<{InnerProperty.Type}>> {propertyName})
         {{
-            return {varName}.SetEntityDictionary({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
+            return {varName}.SetImmutableDictionary({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
         }}
 
-        public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, ImmutableDictionary<{KeyType}, Entity<{InnerDddProperty.Type}>> {propertyName})
+        public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, ImmutableDictionary<{KeyType}, Entity<{InnerProperty.Type}>> {propertyName})
         {{
-            return {varName}.SetEntityDictionary({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
+            return {varName}.SetImmutableDictionary({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
         }}
 ");
     }
@@ -52,8 +52,8 @@ public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEqua
         generatedPrivateFields = generatedPrivateFields.Add(this.GetPrivateBuilderFieldName());
 
         return (new StringBuilder().Append($@"
-        private ImmutableDictionary<{KeyType}, Entity<{InnerDddProperty.Type}>> {this.GetPrivateBuilderFieldName()} {{ get; set; }}
-        public {recordName} With{FieldName}(ImmutableDictionary<{KeyType}, Entity<{InnerDddProperty.Type}>> {FieldName.ToLowerFirstChar()})
+        private ImmutableDictionary<{KeyType}, Entity<{InnerProperty.Type}>> {this.GetPrivateBuilderFieldName()} {{ get; set; }}
+        public {recordName} With{FieldName}(ImmutableDictionary<{KeyType}, Entity<{InnerProperty.Type}>> {FieldName.ToLowerFirstChar()})
         {{
             {this.GetPrivateBuilderFieldName()} = {FieldName.ToLowerFirstChar()};
             return this;
@@ -64,9 +64,10 @@ public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEqua
     public StringBuilder GenerateDefaultConstructorDetail()
     {
         return new StringBuilder().Append($@"
-            {FieldName} = ImmutableDictionary<{KeyType}, {InnerDddProperty.Type}>.Empty;");
+            {FieldName} = ImmutableDictionary<{KeyType}, {InnerProperty.Type}>.Empty;");
     }
 
+    #region IEquatable
     public override bool Equals(object obj)
     {
         return Equals(obj as ImmutableEntityDictionary);
@@ -75,14 +76,14 @@ public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEqua
     public bool Equals(ImmutableEntityDictionary other)
     {
         return other is not null &&
-               EqualityComparer<INonContainerizedDddProperty>.Default.Equals(InnerDddProperty, other.InnerDddProperty) &&
+               EqualityComparer<INonContainerizedEntityProperty>.Default.Equals(InnerProperty, other.InnerProperty) &&
                FieldName == other.FieldName &&
                Type == other.Type &&
                KeyType == other.KeyType &&
                DontGenerateSetters == other.DontGenerateSetters;
     }
 
-    public bool Equals(IDddProperty other)
+    public bool Equals(IEntityProperty other)
     {
         return other is not null &&
                FieldName == other.FieldName &&
@@ -92,7 +93,7 @@ public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEqua
     public override int GetHashCode()
     {
         int hashCode = -1565450388;
-        hashCode = hashCode * -1521134295 + EqualityComparer<INonContainerizedDddProperty>.Default.GetHashCode(InnerDddProperty);
+        hashCode = hashCode * -1521134295 + EqualityComparer<INonContainerizedEntityProperty>.Default.GetHashCode(InnerProperty);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FieldName);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(KeyType);
@@ -109,19 +110,6 @@ public sealed class ImmutableEntityDictionary : IContainerizedDddProperty, IEqua
     {
         return !(left == right);
     }
+    #endregion
 }
 
-public static partial class NamedTypeSymbolExtensions
-{
-    public static ImmutableEntityDictionary GetImmutableEntityDictionary(this ISymbol memberSymbol, GeneratorSyntaxContext context)
-    {
-        var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
-
-        return new ImmutableEntityDictionary(
-            namedTypeSymbol.TypeArguments[1].GetNamedTypeSymbol().GetEntity(context),
-            memberSymbol.Name,
-            namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol().Name,
-            namedTypeSymbol.GetNamedTypeSymbol().Name,
-            memberSymbol.NoSetter(context));
-    }
-}

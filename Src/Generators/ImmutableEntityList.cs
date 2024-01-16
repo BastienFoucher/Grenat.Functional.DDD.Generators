@@ -1,16 +1,18 @@
-﻿namespace Grenat.Functional.DDD.Generators.Models;
+﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
 
-public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<ImmutableEntityList>
+namespace Grenat.Functional.DDD.Generators.Models;
+
+public sealed class ImmutableEntityList : IContainerizedEntityProperty, IEquatable<ImmutableEntityList>
 {
-    public ImmutableEntityList(INonContainerizedDddProperty innerDddProperty, string fieldName, string type, bool dontGenerateSetters)
+    public ImmutableEntityList(INonContainerizedEntityProperty innerDddProperty, string fieldName, string type, bool dontGenerateSetters)
     {
-        InnerDddProperty = innerDddProperty;
+        InnerProperty = innerDddProperty;
         FieldName = fieldName;
         Type = type;
         DontGenerateSetters = dontGenerateSetters;
     }
 
-    public INonContainerizedDddProperty InnerDddProperty { get; }
+    public INonContainerizedEntityProperty InnerProperty { get; }
     public string FieldName { get; }
     public string Type { get; }
     public bool DontGenerateSetters { get; }
@@ -20,19 +22,19 @@ public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<
         var propertyName = FieldName.ToLowerFirstChar();
 
         return new StringBuilder().Append($@"
-        public static {recordName} Set{FieldName}(this {recordName} {varName}, ImmutableList<{InnerDddProperty.Type}> {propertyName})
+        public static {recordName} Set{FieldName}(this {recordName} {varName}, ImmutableList<{InnerProperty.Type}> {propertyName})
         {{
             return {varName} with {{ {FieldName} = {propertyName} }};
         }}
 
-        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, ImmutableList<Entity<{InnerDddProperty.Type}>> {propertyName})
+        public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, ImmutableList<Entity<{InnerProperty.Type}>> {propertyName})
         {{
-            return {varName}.SetEntityList({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
+            return {varName}.SetImmutableList({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
         }}
 
-        public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, ImmutableList<Entity<{InnerDddProperty.Type}>> {propertyName})
+        public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, ImmutableList<Entity<{InnerProperty.Type}>> {propertyName})
         {{
-            return {varName}.SetEntityList({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
+            return {varName}.SetImmutableList({propertyName}, static ({varName}, {propertyName}) => {varName} with {{ {FieldName} = {propertyName} }});
         }}
 ");
     }
@@ -44,8 +46,8 @@ public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<
         generatedPrivateFields = generatedPrivateFields.Add(this.GetPrivateBuilderFieldName());
 
         return (new StringBuilder().Append($@"
-        private ImmutableList<Entity<{InnerDddProperty.Type}>> {this.GetPrivateBuilderFieldName()} {{ get; set; }}
-        public {recordName} With{FieldName}(ImmutableList<Entity<{InnerDddProperty.Type}>> {FieldName.ToLowerFirstChar()})
+        private ImmutableList<Entity<{InnerProperty.Type}>> {this.GetPrivateBuilderFieldName()} {{ get; set; }}
+        public {recordName} With{FieldName}(ImmutableList<Entity<{InnerProperty.Type}>> {FieldName.ToLowerFirstChar()})
         {{
             {this.GetPrivateBuilderFieldName()} = {FieldName.ToLowerFirstChar()};
             return this;
@@ -56,7 +58,7 @@ public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<
     public StringBuilder GenerateDefaultConstructorDetail()
     {
         return new StringBuilder().Append($@"
-            {FieldName} = ImmutableList<{InnerDddProperty.Type}>.Empty;");
+            {FieldName} = ImmutableList<{InnerProperty.Type}>.Empty;");
     }
 
     public override bool Equals(object obj)
@@ -67,13 +69,13 @@ public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<
     public bool Equals(ImmutableEntityList other)
     {
         return other is not null &&
-               EqualityComparer<INonContainerizedDddProperty>.Default.Equals(InnerDddProperty, other.InnerDddProperty) &&
+               EqualityComparer<INonContainerizedEntityProperty>.Default.Equals(InnerProperty, other.InnerProperty) &&
                FieldName == other.FieldName &&
                Type == other.Type &&
                DontGenerateSetters == other.DontGenerateSetters;
     }
 
-    public bool Equals(IDddProperty other)
+    public bool Equals(IEntityProperty other)
     {
         return other is not null &&
                FieldName == other.FieldName &&
@@ -83,7 +85,7 @@ public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<
     public override int GetHashCode()
     {
         int hashCode = -1522267040;
-        hashCode = hashCode * -1521134295 + EqualityComparer<INonContainerizedDddProperty>.Default.GetHashCode(InnerDddProperty);
+        hashCode = hashCode * -1521134295 + EqualityComparer<INonContainerizedEntityProperty>.Default.GetHashCode(InnerProperty);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FieldName);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
         hashCode = hashCode * -1521134295 + DontGenerateSetters.GetHashCode();
@@ -98,18 +100,5 @@ public sealed class ImmutableEntityList : IContainerizedDddProperty, IEquatable<
     public static bool operator !=(ImmutableEntityList left, ImmutableEntityList right)
     {
         return !(left == right);
-    }
-}
-
-public static partial class NamedTypeSymbolExtensions
-{
-    public static ImmutableEntityList GetImmutableEntityList(this ISymbol memberSymbol, GeneratorSyntaxContext context)
-    {
-        var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
-
-        return new ImmutableEntityList(namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol().GetEntity(context),
-            memberSymbol.Name,
-            namedTypeSymbol.GetNamedTypeSymbol().Name,
-            memberSymbol.NoSetter(context));
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Grenat.Functional.DDD.Generators.Models;
+﻿namespace Grenat.Functional.DDD.Generators.Src.Generators;
 
 public record StaticEntityConstructorParameter
 {
@@ -12,7 +12,7 @@ public record StaticEntityConstructorParameter
     }
 }
 
-public sealed class StaticEntityConstructor : IEquatable<StaticEntityConstructor>
+public sealed class Builder : IEquatable<Builder>
 {
     public bool Any { get; }
     public string Name { get; }
@@ -21,7 +21,7 @@ public sealed class StaticEntityConstructor : IEquatable<StaticEntityConstructor
 
     public ImmutableList<StaticEntityConstructorParameter> Parameters { get; }
 
-    public StaticEntityConstructor(bool any, string recordName, string name, ImmutableList<StaticEntityConstructorParameter> parameters, string returningType)
+    public Builder(bool any, string recordName, string name, ImmutableList<StaticEntityConstructorParameter> parameters, string returningType)
     {
         Any = any;
         Name = name;
@@ -36,7 +36,7 @@ public sealed class StaticEntityConstructor : IEquatable<StaticEntityConstructor
         foreach (var parameter in Parameters)
         {
             var matchingPrivateField = generatedBuilderFields.
-                FirstOrDefault(f => f.Remove(0, 1).ToLower() == parameter.Name.ToLower());
+                Find(f => f.Remove(0, 1).ToLower() == parameter.Name.ToLower());
 
             // TODO : create a warning if no property could be matched to the parameter
             if (matchingPrivateField != null)
@@ -48,12 +48,13 @@ public sealed class StaticEntityConstructor : IEquatable<StaticEntityConstructor
 ");
     }
 
+    #region IEquatable
     public override bool Equals(object obj)
     {
-        return Equals(obj as StaticEntityConstructor);
+        return Equals(obj as Builder);
     }
 
-    public bool Equals(StaticEntityConstructor other)
+    public bool Equals(Builder other)
     {
         return other is not null &&
                Any == other.Any &&
@@ -73,13 +74,14 @@ public sealed class StaticEntityConstructor : IEquatable<StaticEntityConstructor
         return hashCode;
     }
 
-    public static bool operator ==(StaticEntityConstructor left, StaticEntityConstructor right)
+    public static bool operator ==(Builder left, Builder right)
     {
-        return EqualityComparer<StaticEntityConstructor>.Default.Equals(left, right);
+        return EqualityComparer<Builder>.Default.Equals(left, right);
     }
 
-    public static bool operator !=(StaticEntityConstructor left, StaticEntityConstructor right)
+    public static bool operator !=(Builder left, Builder right)
     {
         return !(left == right);
     }
+    #endregion
 }

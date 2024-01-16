@@ -1,6 +1,8 @@
-﻿namespace Grenat.Functional.DDD.Generators.Models;
+﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
 
-public sealed class Entity : INonContainerizedDddProperty, IEquatable<Entity>
+namespace Grenat.Functional.DDD.Generators.Models;
+
+public sealed class Entity : INonContainerizedEntityProperty, IEquatable<Entity>
 {
 
     public string FieldName { get; }
@@ -23,12 +25,12 @@ public sealed class Entity : INonContainerizedDddProperty, IEquatable<Entity>
         return new StringBuilder().Append($@"
         public static Entity<{recordName}> Set{FieldName}(this {recordName} {varName}, Entity<{Type}> {innerEntityVarName})
         {{
-            return {varName}.SetEntity({innerEntityVarName}, static ({varName}, {innerEntityVarName}) => {varName} with {{ {FieldName} = {innerEntityVarName} }});
+            return {varName}.Set({innerEntityVarName}, static ({varName}, {innerEntityVarName}) => {varName} with {{ {FieldName} = {innerEntityVarName} }});
         }}
 
         public static Entity<{recordName}> Set{FieldName}(this Entity<{recordName}> {varName}, Entity<{Type}> {innerEntityVarName})
         {{
-            return {varName}.SetEntity({innerEntityVarName}, static ({varName}, {innerEntityVarName}) => {varName} with {{ {FieldName} = {innerEntityVarName} }});
+            return {varName}.Set({innerEntityVarName}, static ({varName}, {innerEntityVarName}) => {varName} with {{ {FieldName} = {innerEntityVarName} }});
         }}
 ");
     }
@@ -70,7 +72,7 @@ public sealed class Entity : INonContainerizedDddProperty, IEquatable<Entity>
     }
 
 
-    public bool Equals(IDddProperty other)
+    public bool Equals(IEntityProperty other)
     {
         return other is not null &&
                FieldName == other.FieldName &&

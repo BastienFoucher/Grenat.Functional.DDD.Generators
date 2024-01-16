@@ -156,14 +156,14 @@ public static class ISymbolExtensions
         return namedTypeSymbol.Name == "Option" && namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol().IsValueObject(context);
     }
 
-    public static BaseDddPropertyType GetDDDPropertyType(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
+    public static BaseEntityPropertyType GetDDDPropertyType(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
     {
         if (namedTypeSymbol.IsValueObject(context))
-            return BaseDddPropertyType.ValueObject;
+            return BaseEntityPropertyType.ValueObject;
         else if (namedTypeSymbol.IsEntity(context))
-            return BaseDddPropertyType.Entity;
+            return BaseEntityPropertyType.Entity;
         else
-            return BaseDddPropertyType.Unknown;
+            return BaseEntityPropertyType.Unknown;
     }
 
     public static bool HasDefaultConstructor(this INamedTypeSymbol namedTypeSymbol)

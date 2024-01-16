@@ -1,10 +1,12 @@
-﻿namespace Grenat.Functional.DDD.Generators.Models;
+﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
 
-public sealed class ValueObject : INonContainerizedDddProperty, IEquatable<ValueObject>
+namespace Grenat.Functional.DDD.Generators.Models;
+
+public sealed class ValueObject : INonContainerizedEntityProperty, IEquatable<ValueObject>
 {
     public ValueObject(string fieldName,
         string type,
-        IEnumerable<ValueObjectProperty> innerValueProperties,
+        IEnumerable<ValueObjectMember> innerValueProperties,
         bool hasDefaultConstructor,
         bool dontGenerateSetters)
     {
@@ -17,7 +19,7 @@ public sealed class ValueObject : INonContainerizedDddProperty, IEquatable<Value
 
     public string FieldName { get; }
     public string Type { get; }
-    public IEnumerable<ValueObjectProperty> InnerValueProperties { get; }
+    public IEnumerable<ValueObjectMember> InnerValueProperties { get; }
     public bool HasDefaultConstructor { get; }
     public bool DontGenerateSetters { get; }
 
@@ -48,12 +50,12 @@ public sealed class ValueObject : INonContainerizedDddProperty, IEquatable<Value
 
         public static Entity<{recordName}> {methodName}(this {recordName} {varName}, ValueObject<{typeOfPropertyToSet}> {varNameOfPropertyToSet})
         {{
-            return {varName}.SetValueObject({varNameOfPropertyToSet}, static ({varName}, {varNameOfPropertyToSet}) => {varName} with {{ {FieldName} = {varNameOfPropertyToSet} }});
+            return {varName}.Set({varNameOfPropertyToSet}, static ({varName}, {varNameOfPropertyToSet}) => {varName} with {{ {FieldName} = {varNameOfPropertyToSet} }});
         }}
 
         public static Entity<{recordName}> {methodName}(this Entity<{recordName}> {varName}, ValueObject<{typeOfPropertyToSet}> {varNameOfPropertyToSet})
         {{
-            return {varName}.SetValueObject({varNameOfPropertyToSet}, static ({varName}, {varNameOfPropertyToSet}) => {varName} with {{ {FieldName} = {varNameOfPropertyToSet} }});
+            return {varName}.Set({varNameOfPropertyToSet}, static ({varName}, {varNameOfPropertyToSet}) => {varName} with {{ {FieldName} = {varNameOfPropertyToSet} }});
         }}
 ");
     }
@@ -102,6 +104,7 @@ public sealed class ValueObject : INonContainerizedDddProperty, IEquatable<Value
             {FieldName} = new {Type}();");
     }
 
+    #region IEquatable
     public override bool Equals(object obj)
     {
         return Equals(obj as ValueObject);
@@ -112,12 +115,12 @@ public sealed class ValueObject : INonContainerizedDddProperty, IEquatable<Value
         return other is not null &&
                FieldName == other.FieldName &&
                Type == other.Type &&
-               EqualityComparer<IEnumerable<ValueObjectProperty>>.Default.Equals(InnerValueProperties, other.InnerValueProperties) &&
+               EqualityComparer<IEnumerable<ValueObjectMember>>.Default.Equals(InnerValueProperties, other.InnerValueProperties) &&
                HasDefaultConstructor == other.HasDefaultConstructor &&
                DontGenerateSetters == other.DontGenerateSetters;
     }
 
-    public bool Equals(IDddProperty other)
+    public bool Equals(IEntityProperty other)
     {
         return other is not null &&
                FieldName == other.FieldName &&
@@ -129,39 +132,10 @@ public sealed class ValueObject : INonContainerizedDddProperty, IEquatable<Value
         int hashCode = -324197283;
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FieldName);
         hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
-        hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<ValueObjectProperty>>.Default.GetHashCode(InnerValueProperties);
+        hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<ValueObjectMember>>.Default.GetHashCode(InnerValueProperties);
         hashCode = hashCode * -1521134295 + HasDefaultConstructor.GetHashCode();
         hashCode = hashCode * -1521134295 + DontGenerateSetters.GetHashCode();
         return hashCode;
     }
-}
-
-public static partial class NamedTypeSymbolExtensions
-{
-    public static ValueObject GetValueObject(this ISymbol memberSymbol, GeneratorSyntaxContext context, string fieldName)
-    {
-        var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
-
-        if (!namedTypeSymbol.IsValueObject(context))
-            throw new ArgumentException($"Named type symbol {namedTypeSymbol.Name} is not a value object.");
-
-        var valueObjectInnerProperties = ImmutableList<ValueObjectProperty>.Empty;
-
-        foreach (var valueField in namedTypeSymbol.GetMembers()
-            .Where(vo => vo.IsValueField(context)))
-        {
-            var baseTypeSymbol = valueField.GetNamedTypeSymbol();
-            valueObjectInnerProperties = valueObjectInnerProperties.Add(new ValueObjectProperty(valueField.Name, baseTypeSymbol.Name, fieldName));
-        }
-
-        var hasDefaultConstructor = namedTypeSymbol.HasDefaultConstructor();
-
-        return new ValueObject(
-            fieldName,
-            namedTypeSymbol.GetNamedTypeSymbol().Name,
-            valueObjectInnerProperties,
-            hasDefaultConstructor,
-            memberSymbol.NoSetter(context));
-    }
-
+    #endregion
 }
