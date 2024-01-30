@@ -1,8 +1,7 @@
 ﻿namespace Grenat.Functional.DDD.Generators.Interfaces;
 
-public interface IProperty
+public interface IProperty : IType
 {
     public string FieldName { get; }
-    public string Type { get; }
     public bool DontGenerateSetters { get; }
 }

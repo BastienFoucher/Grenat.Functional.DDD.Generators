@@ -1,6 +1,8 @@
-﻿namespace Grenat.Functional.DDD.Generators.Interfaces;
+﻿//using Grenat.Functional.DDD.Generators.Src.Models;
 
-public interface INonContainerizedEntityProperty : IEntityProperty
-{
-    public bool HasDefaultConstructor { get; }
-}
+//namespace Grenat.Functional.DDD.Generators.Interfaces;
+
+//public interface INonContainerizedEntityProperty : EntityProperty
+//{
+//    public bool HasDefaultConstructor { get; }
+//}

@@ -1,12 +1,13 @@
 ﻿namespace SampleProject.Entities;
 
 [Entity, GenerateSetters, GenerateBuilder, GenerateDefaultConstructor]
-public partial record Cart
+public partial class Cart
 {
     public int Coincoin { get; init; }
-    public Identifier Id { get; init; }
+    public Identifier Id { get; private set; }
+    public CartItem MainItem { get; private set; }
     public ImmutableList<CartItem> Items { get; init; }
-    public Amount TotalAmount { get; init; }
+    public Amount TotalAmount { get; set; }
 
     [StaticConstructor]
     public static Entity<Cart> Create(int coincoin, string idValue, ImmutableList<Entity<CartItem>> items, int totalAmountValue, string totalAmountCurrency)

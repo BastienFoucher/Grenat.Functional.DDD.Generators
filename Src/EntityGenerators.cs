@@ -1,5 +1,5 @@
-﻿using Grenat.Functional.DDD.Generators.Src.Generators;
-using Grenat.Functional.DDD.Generators.Src.Extensions;
+﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
+using Grenat.Functional.DDD.Generators.Src.Generators;
 
 namespace Grenat.Functional.DDD.Generators;
 
@@ -11,7 +11,7 @@ public class EntityGenerators : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var entities = context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: (node, _) => node is RecordDeclarationSyntax,
+            predicate: (node, _) => (node is RecordDeclarationSyntax || node is ClassDeclarationSyntax),
 
             // Make sure the resulting structure implements IEquatable<T> to use the cache of the
             // incremental generator for better performance. Else, the code to extract the structure will be 
@@ -25,108 +25,14 @@ public class EntityGenerators : IIncrementalGenerator
 
     private static EntityStructure ExtractEntityStructure(GeneratorSyntaxContext context)
     {
-        var entityDeclarationSyntax = (RecordDeclarationSyntax)context.Node;
-        var entitySymbol = context.SemanticModel.GetDeclaredSymbol(entityDeclarationSyntax);
-
-        if (!entitySymbol.IsEntity(context))
-            return null;
-
-        return new EntityStructure
-        {
-            NameSpaceName = entitySymbol.ContainingNamespace.ToDisplayString(),
-            Name = entitySymbol.Name,
-            GenerateSetters = entitySymbol.GenerateSetters(context),
-            GenerateBuilder = entitySymbol.GenerateBuilder(context),
-            GenerateDefaultConstructor = entitySymbol.GenerateDefaultConstructor(context),
-            Properties = GetProperties(entitySymbol, context),
-            StaticConstructor = GetStaticEntityConstructor(entitySymbol, context),
-            HasDefaultContructor = entitySymbol.HasDefaultConstructor()
-        };
-    }
-
-    public static ImmutableList<IProperty> GetProperties(INamedTypeSymbol entitySymbol, GeneratorSyntaxContext context)
-    {
-        var properties = ImmutableList<IProperty>.Empty;
-
-        foreach (var member in entitySymbol.GetMembers()
-            .Where(ms => ms.IsAPublicFieldOrProperty() && ms.Name != "EqualityContract"))
-        {
-            if (member.GetNamedTypeSymbol().IsValueObject(context))
-                properties = properties.Add(member.GetValueObject(context, member.Name));
-
-            else if (member.GetNamedTypeSymbol().IsEntity(context))
-                properties = properties.Add(member.GetEntity(context));
-
-            else if (member.GetNamedTypeSymbol().IsContainerizedDddProperty(context))
-                properties = properties.Add(GetContainerizedDddProperty(member, context));
-
-            else
-                properties = properties.Add(member.GetValue(context));
-        }
-
-        return properties;
-    }
-
-    public static IContainerizedEntityProperty GetContainerizedDddProperty(ISymbol memberSymbol, GeneratorSyntaxContext context)
-    {
-        var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
-
-        if (!namedTypeSymbol.TypeArguments.Any())
-            throw new ArgumentException($"Named type symbol {namedTypeSymbol.Name} is not a container.");
-
-        if (namedTypeSymbol.IsImmutableValueObjectList(context))
-            return memberSymbol.GetImmutableValueObjectList(context);
-
-        else if (namedTypeSymbol.IsOptionableValueObject(context))
-            return memberSymbol.GetOptionableValueObject(context);
-
-        else if (namedTypeSymbol.IsImmutableEntityList(context))
-            return memberSymbol.GetImmutableEntityList(context);
-
-        else if (namedTypeSymbol.IsImmutableEntityDictionary(context))
-            return memberSymbol.GetImmutableEntityDictionary(context);
-
-        else if (namedTypeSymbol.IsOptionableEntity(context))
-            return memberSymbol.GetOptionableEntity(context);
-
+        if (context.SemanticModel.GetDeclaredSymbol(context.Node).IsEntity(context))
+            return new EntityStructure(context);
         else
-            throw new ArgumentException($"Name typed symbol {namedTypeSymbol.Name} is an unknown Grenat DDD container");
+            return null;
     }
 
-    public static Builder GetStaticEntityConstructor(INamedTypeSymbol entitySymbol, GeneratorSyntaxContext context)
-    {
-        var staticEntityConstructor = new Builder(false, string.Empty, string.Empty, ImmutableList<StaticEntityConstructorParameter>.Empty, string.Empty);
-
-        foreach (var member in entitySymbol.GetMembers()
-            .Where(ms => ms.IsAPublicMethod()
-                && ms.IsStaticConstructor(context)))
-        {
-            var returnNamedType = member.GetMethodSymbol().ReturnType.GetNamedTypeSymbol();
-
-            // TODO : create a warning if return type of the static constructor does not match Entity<recordName>
-            if (returnNamedType != null
-                && returnNamedType.Name == "Entity"
-                && returnNamedType.TypeArguments.Count() == 1
-                && returnNamedType.TypeArguments[0].GetNamedTypeSymbol().IsEntity(context))
-            {
-                var staticEntityConstructorParameters = member.GetMethodSymbol().Parameters
-                    .Select(p => new StaticEntityConstructorParameter(p.Name, p.Type.Name))
-                    .ToImmutableList();
-
-                var returnType = $"Entity<{returnNamedType.TypeArguments[0].GetNamedTypeSymbol().GetEntity(context).Type}>";
-
-                staticEntityConstructor = new Builder(true,
-                    member.ContainingSymbol.Name,
-                    member.Name,
-                    staticEntityConstructorParameters,
-                    returnType);
-            }
-        }
-
-        return staticEntityConstructor;
-    }
-
-    private static void GenerateSourceFiles(SourceProductionContext context,
+    private static void GenerateSourceFiles(
+        SourceProductionContext context,
         EntityStructure entityStructure,
         Dictionary<string, int> _extractionCallsPerFileName)
     {
@@ -152,7 +58,7 @@ namespace {entityStructure.NameSpaceName}
         if (entityStructure.GenerateSetters) 
             result.Append(GenerateSetters(entityStructure));
 
-        if (entityStructure.GenerateBuilder && entityStructure.StaticConstructor.Any)
+        if (entityStructure.GenerateBuilder)
             result.Append(GenerateBuilder(entityStructure));
 
         result = result.Append($@"
@@ -165,78 +71,63 @@ namespace {entityStructure.NameSpaceName}
     {
         var varNameForExtendedRecord = entityStructure.Name.ToLowerFirstChar();
 
-        var result = new StringBuilder().Append($@"
-    public static partial class {entityStructure.Name}Setters
-    {{");
+        //    var result = new StringBuilder().Append($@"
+        //public static partial class {entityStructure.Name}Setters
+        //{{");
 
-        foreach (var property in entityStructure
-            .Properties
-            .OfType<IEntityProperty>()
-            .Where(d => !d.DontGenerateSetters))
-        {
-            result = result.Append(property.GenerateSetters(entityStructure.Name, varNameForExtendedRecord));
-        }
+        //    foreach (var property in entityStructure
+        //        .Properties
+        //        .OfType<EntityProperty>()
+        //        .Where(d => !d.DontGenerateSetters))
+        //    {
+        //        result = result.Append(property.GenerateSetters(entityStructure.Name, varNameForExtendedRecord));
+        //    }
 
-        result = result.Append($@"
-    }}");
+        //    result = result.Append($@"
+        //}}");
 
-        return result;
+        //    return result;
+
+        return new StringBuilder();
     }
 
     public static StringBuilder GenerateBuilder(EntityStructure entityStructure)
     {
-        var builderName = $"{entityStructure.Name}Builder";
-
-        var result = new StringBuilder().Append($@"
-    
-    public partial record {builderName}
-    {{");
-
-        ImmutableList<string> allGeneratedBuilderFields = ImmutableList<string>.Empty;
-        foreach (var dddProperty in entityStructure.Properties.OfType<IEntityProperty>())
-        {
-            (var builderDetails, var generatedFields) = dddProperty.GenerateBuilderDetails(builderName);
-            result = result.Append(builderDetails);
-            allGeneratedBuilderFields = allGeneratedBuilderFields.AddRange(generatedFields);
-        }
-
-        result = result.Append(entityStructure.StaticConstructor.GenerateBuildMethod(allGeneratedBuilderFields));
-        result = result.Append($@"
-    }}");
-        return result;
+        var builder = new BuilderGenerator(entityStructure);
+        return builder.Generate();
     }
 
     public static StringBuilder GenerateDefaultConstructor(EntityStructure entityStructure)
     {
-        bool everyValueObjectHasADefaultConstructor = entityStructure
-            .Properties.OfType<ValueObject>()
-            .Any(p => p.HasDefaultConstructor) || !entityStructure.Properties.OfType<ValueObject>().Any();
+//        bool everyValueObjectHasADefaultConstructor = entityStructure
+//            .Properties.OfType<ValueObjectProperty>()
+//            .Any(p => p.HasDefaultConstructor) || !entityStructure.Properties.OfType<ValueObjectProperty>().Any();
 
+//        bool everyEntityHasADefaultContructor = entityStructure
+//            .Properties.OfType<EntityProperty>()
+//            .Any(p => p.HasDefaultConstructor) || !entityStructure.Properties.OfType<EntityProperty>().Any();
 
-        bool everyEntityHasADefaultContructor = entityStructure
-            .Properties.OfType<Entity>()
-            .Any(p => p.HasDefaultConstructor) || !entityStructure.Properties.OfType<Entity>().Any();
+//        var result = new StringBuilder();
 
-        var result = new StringBuilder();
+//        if (everyValueObjectHasADefaultConstructor && everyEntityHasADefaultContructor)
+//        {
+//            result.Append($@"
+//    public partial {entityStructure.GetEntitySymbolKindForCode()} {entityStructure.Name}
+//    {{
+//        public {entityStructure.Name}() 
+//        {{");
 
-        if (everyValueObjectHasADefaultConstructor && everyEntityHasADefaultContructor)
-        {
-            result.Append($@"
-    public partial record {entityStructure.Name}
-    {{
-        public {entityStructure.Name}() 
-        {{");
+//            foreach (var dddProperty in entityStructure.Properties.OfType<EntityProperty>())
+//                result.Append(dddProperty.GenerateDefaultConstructorDetail());
 
-            foreach (var dddProperty in entityStructure.Properties.OfType<IEntityProperty>())
-                result.Append(dddProperty.GenerateDefaultConstructorDetail());
+//            result.Append($@"
+//        }}
+//    }}
+//");
+//        }
 
-            result.Append($@"
-        }}
-    }}
-");
-        }
-
-        return result;
+//        return result;
+    return new StringBuilder();
     }
 
     private static void CreateAttributes(IncrementalGeneratorPostInitializationContext context)

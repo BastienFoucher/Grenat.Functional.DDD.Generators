@@ -1,48 +1,45 @@
-﻿using System.Linq;
-using Grenat.Functional.DDD.Generators.Src.Generators;
+﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
+using Grenat.Functional.DDD.Generators.Src.Models;
 
 namespace Grenat.Functional.DDD.Generators.Models;
 
-public sealed class EntityStructure : IEquatable<EntityStructure>
+public enum EntitySymbolKind
 {
-    public string NameSpaceName { get; set; }
-    public string Name { get; set; }
-    public IEnumerable<IProperty> Properties { get; set; }
-    public Builder StaticConstructor { get; set; }
-    public bool GenerateSetters { get; set; }
-    public bool GenerateBuilder { get; set; }
-    public bool GenerateDefaultConstructor { get; set; }
-    public bool HasDefaultContructor { get; set; }
+    Class,
+    Record
+}
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as EntityStructure);
-    }
+public class EntityStructure
+{
+    public EntitySymbolKind Kind { get; private set; }
+    public string NameSpaceName { get; private set; }
+    public string Name { get; private set; }
+    public IEnumerable<IProperty> Properties { get; private set; }
+    public StaticConstructor StaticConstructor { get; private set; }
+    public bool GenerateSetters { get; private set; }
+    public bool GenerateBuilder { get; private set; }
+    public bool GenerateDefaultConstructor { get; private set; }
+    public bool HasDefaultContructor { get; private set; }
 
-    public bool Equals(EntityStructure other)
+    public EntityStructure(GeneratorSyntaxContext context)
     {
-        return other is not null &&
-               NameSpaceName == other.NameSpaceName &&
-               Name == other.Name &&
-               StaticConstructor.Equals(other.StaticConstructor) &&
-               GenerateSetters == other.GenerateSetters &&
-               GenerateBuilder == other.GenerateBuilder &&
-               GenerateDefaultConstructor == other.GenerateDefaultConstructor &&
-               HasDefaultContructor == other.HasDefaultContructor &&
-               Properties.SequenceEqual(other.Properties);
-    }
+        var entityDeclarationSyntax = (BaseTypeDeclarationSyntax)context.Node;
+        var entitySymbol = context.SemanticModel.GetDeclaredSymbol(entityDeclarationSyntax);
 
-    public override int GetHashCode()
-    {
-        int hashCode = -1992365931;
-        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(NameSpaceName);
-        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-        hashCode = hashCode * -1521134295 + EqualityComparer<Builder>.Default.GetHashCode(StaticConstructor);
-        hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<IProperty>>.Default.GetHashCode(Properties);
-        hashCode = hashCode * -1521134295 + GenerateSetters.GetHashCode();
-        hashCode = hashCode * -1521134295 + GenerateBuilder.GetHashCode();
-        hashCode = hashCode * -1521134295 + GenerateDefaultConstructor.GetHashCode();
-        hashCode = hashCode * -1521134295 + HasDefaultContructor.GetHashCode();
-        return hashCode;
+        if (context.Node is RecordDeclarationSyntax)
+            Kind = EntitySymbolKind.Record;
+        else if (context.Node is ClassDeclarationSyntax)
+            Kind = EntitySymbolKind.Class;
+        else
+            throw new ArgumentException($"{context.Node} is not a supported declaration syntax");
+
+        NameSpaceName = entitySymbol.ContainingNamespace.ToDisplayString();
+        Name = entitySymbol.Name;
+        Properties = entitySymbol.GetProperties(context);
+        StaticConstructor = entitySymbol.GetStaticEntityConstructor(context);
+        GenerateSetters = entitySymbol.GenerateSetters(context);
+        GenerateBuilder = entitySymbol.GenerateBuilder(context);
+        GenerateDefaultConstructor = entitySymbol.GenerateDefaultConstructor(context);
+        HasDefaultContructor = entitySymbol.HasDefaultConstructor();
     }
 }

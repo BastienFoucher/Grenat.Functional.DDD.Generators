@@ -4,10 +4,10 @@ public static class IPropertyExtensions
 {
     public static string GetPrivateBuilderFieldName(this IProperty property)
     {
-        if (property is ValueObjectMember valueObjectProperty)
-            return $"_{valueObjectProperty.ParentFieldName.ToLowerFirstChar()}{property.FieldName.ToUpperFirstChar()}";
+        //if (property is ValueObjectProperty valueObjectProperty)
+        //    return $"_{valueObjectProperty.FieldName.ToLowerFirstChar()}{property.FieldName.ToUpperFirstChar()}";
 
-        else
+        //else
             return $"_{property.FieldName.ToLowerFirstChar()}";
     }
 }

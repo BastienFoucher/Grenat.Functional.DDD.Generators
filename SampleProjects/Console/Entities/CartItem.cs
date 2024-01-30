@@ -1,9 +1,9 @@
 ﻿namespace SampleProject.Entities;
 
 [Entity, GenerateBuilder, GenerateSetters, GenerateDefaultConstructor]
-public partial record CartItem
+public partial class CartItem
 {
-    public Identifier Id { get; init; }
+    public Identifier Id { get; private set; }
     public Identifier ProductId { get; init; }
     public Amount Amount { get; init; }
 

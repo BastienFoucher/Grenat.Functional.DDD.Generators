@@ -1,6 +1,8 @@
-﻿namespace Grenat.Functional.DDD.Generators.Interfaces;
+﻿//using Grenat.Functional.DDD.Generators.Src.Models;
 
-public interface IContainerizedEntityProperty : IEntityProperty
-{
-    public INonContainerizedEntityProperty InnerProperty { get; }
-}
+//namespace Grenat.Functional.DDD.Generators.Interfaces;
+
+//public interface IContainerizedEntityProperty : EntityProperty
+//{
+//    public INonContainerizedEntityProperty InnerProperty { get; }
+//}
