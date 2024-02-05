@@ -20,18 +20,20 @@ internal class BuilderDetailGeneratorForValueObjectProperty : BuilderDetailGener
         var setterParametersList = new StringBuilder();
         var setterArgumentsList = new StringBuilder();
         var generatedPrivateFields = ImmutableList<string>.Empty;
+        var parentProperty = (IProperty)ValueObjectProperty;
 
         // Looping over ValueObjects members
         foreach (var field in ValueObjectProperty.Fields)
         {
-            var paramName = $"{field.GetPrivateBuilderFieldName().Remove(0, 1)}";
+            var paramName = $"{field.GetPrivateBuilderFieldName(parentProperty).Remove(0, 1)}";
+            var privateBuilderFieldName = field.GetPrivateBuilderFieldName(parentProperty);
 
             result.Append($@"
-    private {field.TypeName} {field.GetPrivateBuilderFieldName()} {{ get; set; }}");
+    private {field.TypeName} {privateBuilderFieldName} {{ get; set; }}");
             setterParametersList.Append($"{field.TypeName} {paramName}, ");
             setterArgumentsList.Append($@"
-    {field.GetPrivateBuilderFieldName()} = {paramName};");
-            generatedPrivateFields = generatedPrivateFields.Add(field.GetPrivateBuilderFieldName());
+        {privateBuilderFieldName} = {paramName};");
+            generatedPrivateFields = generatedPrivateFields.Add(privateBuilderFieldName);
         }
 
         generatedPrivateFields = generatedPrivateFields.Add(this.GetPrivateBuilderFieldName());
@@ -42,8 +44,8 @@ internal class BuilderDetailGeneratorForValueObjectProperty : BuilderDetailGener
         return this;
     }}
 
-    private ValueObject<{Property.TypeName}> {this.GetPrivateBuilderFieldName()} {{ get; set; }}
-    public {ParentSymbolName} With{ValueObjectProperty.FieldName}({ValueObjectProperty.TypeName}<{ValueObjectProperty.InnerType.TypeName}> {Property.FieldName.ToLowerFirstChar()})
+    private {Property.TypeName} {this.GetPrivateBuilderFieldName()} {{ get; set; }}
+    public {ParentSymbolName} With{ValueObjectProperty.FieldName}({ValueObjectProperty.TypeName} {Property.FieldName.ToLowerFirstChar()})
     {{
         {this.GetPrivateBuilderFieldName()} = {Property.FieldName.ToLowerFirstChar()};
         return this;

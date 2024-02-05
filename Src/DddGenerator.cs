@@ -4,7 +4,7 @@ using Grenat.Functional.DDD.Generators.Src.Generators;
 namespace Grenat.Functional.DDD.Generators;
 
 [Generator]
-public class EntityGenerators : IIncrementalGenerator
+public class DddGenerator : IIncrementalGenerator
 {
     private readonly Dictionary<string, int> _extractionCallsPerFileName = new();
 
@@ -49,20 +49,16 @@ public class EntityGenerators : IIncrementalGenerator
         var result = new StringBuilder();
         result = result.Append($"//generation count: {_extractionCallsPerFileName[fileName]}");  // Use it to ensure no excessive generations are called(cf comment on top of this file)
         result.Append($@"
-namespace {entityStructure.NameSpaceName}
-{{");
+namespace {entityStructure.NameSpaceName};");
 
         if (entityStructure.GenerateDefaultConstructor)
             result.Append(GenerateDefaultConstructor(entityStructure));
 
-        if (entityStructure.GenerateSetters) 
+        if (entityStructure.GenerateSetters)
             result.Append(GenerateSetters(entityStructure));
 
         if (entityStructure.GenerateBuilder)
             result.Append(GenerateBuilder(entityStructure));
-
-        result = result.Append($@"
-}}");
 
         context.AddSource(fileName, result.ToString());
     }

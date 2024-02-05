@@ -45,7 +45,7 @@ public static class INamedTypeSymbolExtensions
     {
         var properties = ImmutableList<IProperty>.Empty;
 
-        foreach (var member in entitySymbol.GetMembers()
+        foreach (var member in entitySymbol.GetMembersAndBaseMembers()
             .Where(ms => ms.IsAPublicFieldOrProperty() && ms.Name != "EqualityContract"))
         {
             var namedTypeSymbol = member.GetNamedTypeSymbol();
@@ -56,14 +56,32 @@ public static class INamedTypeSymbolExtensions
             else if (namedTypeSymbol.IsEntity(context))
                 properties = properties.Add(member.GetEntityProperty(context));
 
+            else if (namedTypeSymbol.IsOptionableEntity(context))
+                properties = properties.Add(member.GetOptionableProperty(context));
+
             //else if (namedTypeSymbol.IsContainerizedDddProperty(context))
             //    properties = properties.Add(namedTypeSymbol.GetContainerizedDddProperty(context));
 
-            //else
-            //    properties = properties.Add(member.GetValueProperty(context));
+            else
+                properties = properties.Add(member.GetValueProperty(context));
         }
 
         return properties;
+    }
+
+    private static ImmutableList<ISymbol> GetMembersAndBaseMembers(
+        this INamedTypeSymbol namedTypeSymbol,
+        ImmutableList<ISymbol> membersAccumulator = null)
+    {
+        if (membersAccumulator == null)
+            membersAccumulator = ImmutableList<ISymbol>.Empty;
+
+        if (namedTypeSymbol.BaseType != null)
+            membersAccumulator = membersAccumulator.AddRange(GetMembersAndBaseMembers(namedTypeSymbol.BaseType, membersAccumulator));
+            
+        membersAccumulator = membersAccumulator.AddRange(namedTypeSymbol.GetMembers().ToImmutableList());
+
+        return membersAccumulator;
     }
 
     public static bool IsContainerizedDddProperty(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)

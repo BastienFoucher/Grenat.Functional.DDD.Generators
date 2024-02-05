@@ -1,6 +1,7 @@
 ﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
 using Grenat.Functional.DDD.Generators.Src.Generators.Builder;
 using Grenat.Functional.DDD.Generators.Src.Models;
+using System.ComponentModel;
 
 namespace Grenat.Functional.DDD.Generators.Src.Generators;
 
@@ -23,7 +24,7 @@ internal class BuilderGenerator : IGenerator
 
         var result = new StringBuilder().Append($@"
     
-public partial {EntityStructure.Kind} {BuilderName}
+public partial {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Description} {BuilderName}
 {{");
 
         ImmutableList<string> allGeneratedBuilderFields = ImmutableList<string>.Empty;
@@ -37,7 +38,7 @@ public partial {EntityStructure.Kind} {BuilderName}
 
         result = result.Append(GenerateBuildMethod(allGeneratedBuilderFields));
         result = result.Append($@"
-    }}");
+}}");
         return result;
     }
 
@@ -55,16 +56,16 @@ public partial {EntityStructure.Kind} {BuilderName}
         }
 
         return new StringBuilder().Append($@"
-        public {StaticConstructor.ReturningType} Build() => {StaticConstructor.Name}({body.ToString().RemoveLastChars(2)});
+    public {StaticConstructor.ReturningType} Build() => {StaticConstructor.Name}({body.ToString().RemoveLastChars(2)});
 ");
     }
 
     private BuilderDetailGenerator CreateBuilderDetailGenerator(IProperty property)
     {
-        if (property is EntityProperty)
-            return new BuilderDetailGenerator(property, EntityStructure.Name);
-        else /*if (property is ValueObjectProperty)*/
+        if (property is ValueObjectProperty)
             return new BuilderDetailGeneratorForValueObjectProperty(property, EntityStructure.Name);
+        else
+            return new BuilderDetailGenerator(property, EntityStructure.Name);
         //else if (property is ImmutableDictionaryProperty)
         //    return new BuilderDetailGeneratorForImmutableDictionaryProperty(property, SymbolName, Inn)
 

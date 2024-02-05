@@ -1,11 +1,14 @@
 ﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
 using Grenat.Functional.DDD.Generators.Src.Models;
+using System.ComponentModel;
 
 namespace Grenat.Functional.DDD.Generators.Models;
 
 public enum EntitySymbolKind
 {
+    [Description("class")]
     Class,
+    [Description("record")]
     Record
 }
 

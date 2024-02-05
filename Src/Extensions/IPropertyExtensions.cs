@@ -2,12 +2,8 @@
 
 public static class IPropertyExtensions
 {
-    public static string GetPrivateBuilderFieldName(this IProperty property)
+    public static string GetPrivateBuilderFieldName(this IProperty property, IProperty parentProperty)
     {
-        //if (property is ValueObjectProperty valueObjectProperty)
-        //    return $"_{valueObjectProperty.FieldName.ToLowerFirstChar()}{property.FieldName.ToUpperFirstChar()}";
-
-        //else
-            return $"_{property.FieldName.ToLowerFirstChar()}";
+            return $"_{parentProperty.FieldName.ToLowerFirstChar()}{property.FieldName}";
     }
 }

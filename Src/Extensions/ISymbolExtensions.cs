@@ -69,6 +69,7 @@ public static class ISymbolExtensions
         return new ValueProperty(
             memberSymbol.Name,
             namedTypeSymbol.GetNamedTypeSymbol().Name,
+            namedTypeSymbol.TypeArguments,
             memberSymbol.NoSetter(context));
     }
 
@@ -87,7 +88,11 @@ public static class ISymbolExtensions
             .Where(vo => vo.IsValueField(context)))
         {
             var baseTypeSymbol = valueField.GetNamedTypeSymbol();
-            valueObjectInnerProperties = valueObjectInnerProperties.Add(new ValueProperty(valueField.Name, baseTypeSymbol.Name, false));
+            valueObjectInnerProperties = valueObjectInnerProperties.Add(
+                new ValueProperty(valueField.Name,
+                    baseTypeSymbol.Name,
+                    baseTypeSymbol.TypeArguments,
+                    false));
         }
 
         var hasDefaultConstructor = namedTypeSymbol.HasDefaultConstructor();
@@ -177,6 +182,7 @@ public static class ISymbolExtensions
     {
         return symbol.VerifyAttribute(context, "ValueObjectAttribute");
     }
+
 
     public static bool NoSetter(this ISymbol symbol, GeneratorSyntaxContext context)
     {

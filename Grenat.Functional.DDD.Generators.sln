@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleProject.Console", "Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grenat.Functional.DDD.Src", "..\Grenat.Functional.DDD\Grenat.Functional.DDD.Src\Grenat.Functional.DDD.Src.csproj", "{D81E73A2-D0E3-4FF8-859E-A5BDABADF7EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grenat.Functional.DDD.Generators.Tests", "Grenat.Functional.DDD.Generators.Tests\Grenat.Functional.DDD.Generators.Tests.csproj", "{BB7E3A52-0405-434A-9FE1-B17864B7AE13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D81E73A2-D0E3-4FF8-859E-A5BDABADF7EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D81E73A2-D0E3-4FF8-859E-A5BDABADF7EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D81E73A2-D0E3-4FF8-859E-A5BDABADF7EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB7E3A52-0405-434A-9FE1-B17864B7AE13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB7E3A52-0405-434A-9FE1-B17864B7AE13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB7E3A52-0405-434A-9FE1-B17864B7AE13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB7E3A52-0405-434A-9FE1-B17864B7AE13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
