@@ -24,13 +24,13 @@ internal class BuilderGenerator : IGenerator
 
         var result = new StringBuilder().Append($@"
     
-public partial {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Description} {BuilderName}
+public {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Description} {BuilderName}
 {{");
 
         ImmutableList<string> allGeneratedBuilderFields = ImmutableList<string>.Empty;
-        foreach (var dddProperty in EntityStructure.Properties)
+        foreach (var property in EntityStructure.Properties)
         {
-            var builder = CreateBuilderDetailGenerator(dddProperty);
+            var builder = CreateBuilderDetailGenerator(property);
             (var builderDetails, var generatedFields) = builder.Generate();
             result = result.Append(builderDetails);
             allGeneratedBuilderFields = allGeneratedBuilderFields.AddRange(generatedFields);
@@ -66,8 +66,5 @@ public partial {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Descri
             return new BuilderDetailGeneratorForValueObjectProperty(property, EntityStructure.Name);
         else
             return new BuilderDetailGenerator(property, EntityStructure.Name);
-        //else if (property is ImmutableDictionaryProperty)
-        //    return new BuilderDetailGeneratorForImmutableDictionaryProperty(property, SymbolName, Inn)
-
     }
 }

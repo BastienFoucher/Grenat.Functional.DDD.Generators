@@ -28,12 +28,6 @@ internal class BuilderDetailGenerator
 "), generatedPrivateFields);
     }
 
-    protected virtual StringBuilder GenerateDefaultConstructorDetail()
-    {
-        return new StringBuilder().Append($@"
-            {Property.FieldName} = new {Property.TypeName}();");
-    }
-
     protected string GetPrivateBuilderFieldName()
     {
         return $"_{Property.FieldName.ToLowerFirstChar()}";

@@ -2,7 +2,7 @@
 //generation count: 1
 namespace BuilderGeneratorTests;
     
-public partial class CartBuilder
+public class CartBuilder
 {
     private Int32 _id { get; set; }
     public Cart WithId(Int32 id)

@@ -27,7 +27,7 @@ public sealed class ValueProperty : IProperty, IEquatable<ValueProperty>
     {
         if (innerTypes.Length > 0)
         {
-            var innerTypesString = string.Join(",", innerTypes);
+            var innerTypesString = string.Join(", ", innerTypes);
             return new StringBuilder()
                 .Append(typeName)
                 .Append("<")

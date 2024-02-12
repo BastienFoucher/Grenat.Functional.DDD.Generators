@@ -26,7 +26,7 @@ public static class INamedTypeSymbolExtensions
                     .Select(p => new StaticEntityConstructorParameter(p.Name, p.Type.Name))
                     .ToImmutableList();
 
-                var returnType = $"Entity<{returnNamedType.TypeArguments[0].GetNamedTypeSymbol().GetEntityProperty(context).TypeName}>";
+                var returnType = $"{returnNamedType.TypeArguments[0].GetNamedTypeSymbol().GetEntityProperty(context).TypeName}";
 
                 staticEntityConstructor = new StaticConstructor(true,
                     member.ContainingSymbol.Name,
@@ -59,6 +59,10 @@ public static class INamedTypeSymbolExtensions
             else if (namedTypeSymbol.IsOptionableEntity(context))
                 properties = properties.Add(member.GetOptionableProperty(context));
 
+            else if (namedTypeSymbol.IsImmutableList(context))
+                properties = properties.Add(member.GetImmutableListProperty(context));
+
+
             //else if (namedTypeSymbol.IsContainerizedDddProperty(context))
             //    properties = properties.Add(namedTypeSymbol.GetContainerizedDddProperty(context));
 
@@ -84,23 +88,10 @@ public static class INamedTypeSymbolExtensions
         return membersAccumulator;
     }
 
-    public static bool IsContainerizedDddProperty(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
-    {
-        return namedTypeSymbol.IsImmutableEntityList(context)
-                || namedTypeSymbol.IsImmutableEntityDictionary(context)
-                || namedTypeSymbol.IsOptionableEntity(context)
-                || namedTypeSymbol.IsImmutableValueObjectList(context)
-                || namedTypeSymbol.IsOptionableValueObject(context);
-    }
 
-    public static bool IsImmutableEntityList(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
+    public static bool IsImmutableList(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
     {
-        return namedTypeSymbol.Name == "ImmutableList" && namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol().IsEntity(context);
-    }
-
-    public static bool IsImmutableValueObjectList(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
-    {
-        return namedTypeSymbol.Name == "ImmutableList" && namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol().IsValueObject(context);
+        return namedTypeSymbol.Name == "ImmutableList";
     }
 
     public static bool IsImmutableEntityDictionary(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)

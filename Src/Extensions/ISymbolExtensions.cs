@@ -34,13 +34,13 @@ public static class ISymbolExtensions
             memberSymbol.NoSetter(context));
     }
 
-    public static ImmutableListProperty GetImmutableListProperty(
+    public static ImmutableCollectionProperty GetImmutableListProperty(
         this ISymbol memberSymbol,
         GeneratorSyntaxContext context)
     {
         var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
 
-        return new ImmutableListProperty(
+        return new ImmutableCollectionProperty(
             memberSymbol.Name,
             new TypeData(namedTypeSymbol.TypeArguments[0].Name),
             memberSymbol.NoSetter(context));

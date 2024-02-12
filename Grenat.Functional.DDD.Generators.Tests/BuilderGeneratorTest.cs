@@ -106,7 +106,32 @@ public partial class Cart
     }
 
     [Fact]
-    public Task Verify_Option_Entity_Generation()
+    public Task Verify_Option_Generation()
+    {
+        // The source code to test
+        var source = $@"
+{GetHeadersCode()}
+
+{GetAmountValueObjectCode()}
+
+{GetIdentifierValueObjectCode()}
+
+{GetCartItemEntityCode()}
+
+{GetAllGrenatDddAttributesCode()}
+public partial class Cart
+{{
+    public Option<CartItem> Item {{get; set;}}
+    public Option<Code> Coupon {{get; set;}}
+    public Option<int> OptionableInt {{get; set;}}
+}}
+";
+
+        return VerifyGeneratedCode(source);
+    }
+
+    [Fact]
+    public Task Verify_List_Entity_Generation()
     {
         // The source code to test
         var source = $@"
@@ -119,8 +144,61 @@ public partial class Cart
 {GetAllGrenatDddAttributesCode()}
 public partial class Cart
 {{
+    public List<CartItem> Items {{get; set;}}
+}}
+";
+
+        return VerifyGeneratedCode(source);
+    }
+
+    [Fact]
+    public Task Verify_Dictionary_Entity_Generation()
+    {
+        // The source code to test
+        var source = $@"
+{GetHeadersCode()}
+
+{GetAmountValueObjectCode()}
+
+{GetIdentifierValueObjectCode()}
+
+{GetAllGrenatDddAttributesCode()}
+public partial class Cart
+{{
+    public Dictionary<int, CartItem> Items {{get; set;}}
+}}
+";
+
+        return VerifyGeneratedCode(source);
+    }
+
+    [Fact]
+    public Task Verify_BuildMethod()
+    {
+        // The source code to test
+        var source = $@"
+{GetHeadersCode()}
+
+{GetAmountValueObjectCode()}
+
+{GetIdentifierValueObjectCode()}
+
+{GetAllGrenatDddAttributesCode()}
+public partial class Cart
+{{
+    public int Id {{get; set;}}
+    public Amount TotalAmount {{get; set;}}
     public Option<Code> Coupon {{get; set;}}
-    public Option<int> OptionableInt {{get; set;}}
+    public ImmutableList<CartItem> Items {{get; set;}}
+
+    [StaticConstructor]
+    public Entity<Cart> Create(int id, string totalAmountCurrency, int totalAmountValue, Option<Code> coupon) 
+    {{
+        Id = id;
+        TotalAmount = totalAmount;
+        Coupon = coupon;
+        Items = ImmutableList<CartItem>.Empty;
+    }}
 }}
 ";
 

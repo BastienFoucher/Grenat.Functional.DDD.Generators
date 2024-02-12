@@ -1,10 +1,10 @@
 ﻿namespace Grenat.Functional.DDD.Generators.Src.Models;
 
-public sealed class ImmutableListProperty : CollectionProperty, IEquatable<ImmutableListProperty>
+public sealed class ImmutableCollectionProperty : CollectionProperty, IEquatable<ImmutableCollectionProperty>
 {
     public override string TypeName => $"ImmutableList<{InnerType.TypeName}>";
 
-    public ImmutableListProperty(
+    public ImmutableCollectionProperty(
         string fieldName, 
         IType innerType, 
         bool dontGenerateSetters)
@@ -15,10 +15,10 @@ public sealed class ImmutableListProperty : CollectionProperty, IEquatable<Immut
     #region IEquatable
     public override bool Equals(object obj)
     {
-        return Equals(obj as ImmutableListProperty);
+        return Equals(obj as ImmutableCollectionProperty);
     }
 
-    public bool Equals(ImmutableListProperty other)
+    public bool Equals(ImmutableCollectionProperty other)
     {
         return other is not null &&
                FieldName == other.FieldName &&

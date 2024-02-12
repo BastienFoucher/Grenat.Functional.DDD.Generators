@@ -2,7 +2,7 @@
 //generation count: 1
 namespace BuilderGeneratorTests;
     
-public partial class CartBuilder
+public class CartBuilder
 {
     private String _idValue { get; set; }
     public Cart WithId(String idValue)

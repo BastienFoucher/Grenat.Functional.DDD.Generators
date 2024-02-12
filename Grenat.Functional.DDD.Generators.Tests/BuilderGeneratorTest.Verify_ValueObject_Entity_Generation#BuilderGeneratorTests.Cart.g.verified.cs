@@ -2,7 +2,7 @@
 //generation count: 1
 namespace BuilderGeneratorTests;
     
-public partial class CartBuilder
+public class CartBuilder
 {
     private Entity<CartItem> _cartItem { get; set; }
     public Cart WithCartItem(Entity<CartItem> cartItem)
