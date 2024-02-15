@@ -2,11 +2,11 @@
 
 namespace Grenat.Functional.DDD.Generators.Src.Generators.Builder;
 
-internal class BuilderDetailGeneratorForValueObjectProperty : BuilderDetailGenerator
+internal class BuilderDetailGeneratorForValueObject : BuilderDetailGenerator
 {
     private ValueObjectProperty ValueObjectProperty { get; }
 
-    public BuilderDetailGeneratorForValueObjectProperty(
+    public BuilderDetailGeneratorForValueObject(
         IProperty property,
         string parentClassOrRecordName)
         : base(property, parentClassOrRecordName)

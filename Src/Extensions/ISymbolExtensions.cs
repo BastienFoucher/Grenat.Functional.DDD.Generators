@@ -34,13 +34,25 @@ public static class ISymbolExtensions
             memberSymbol.NoSetter(context));
     }
 
-    public static ImmutableCollectionProperty GetImmutableListProperty(
+    public static ImmutableCollectionProperty GetImmutableCollectionProperty(
         this ISymbol memberSymbol,
         GeneratorSyntaxContext context)
     {
         var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
 
-        return new ImmutableCollectionProperty(
+        return new ImmutableListProperty(
+            memberSymbol.Name,
+            new TypeData(namedTypeSymbol.TypeArguments[0].Name),
+            memberSymbol.NoSetter(context));
+    }
+
+    public static ImmutableCollectionProperty GetImmutableHashSetProperty(
+    this ISymbol memberSymbol,
+    GeneratorSyntaxContext context)
+    {
+        var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
+
+        return new ImmutableHashSetProperty(
             memberSymbol.Name,
             new TypeData(namedTypeSymbol.TypeArguments[0].Name),
             memberSymbol.NoSetter(context));

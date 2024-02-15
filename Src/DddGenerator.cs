@@ -89,41 +89,14 @@ namespace {entityStructure.NameSpaceName};");
 
     public static StringBuilder GenerateBuilder(EntityStructure entityStructure)
     {
-        var builder = new BuilderGenerator(entityStructure);
-        return builder.Generate();
+        var generator = new BuilderGenerator(entityStructure);
+        return generator.Generate();
     }
 
     public static StringBuilder GenerateDefaultConstructor(EntityStructure entityStructure)
     {
-//        bool everyValueObjectHasADefaultConstructor = entityStructure
-//            .Properties.OfType<ValueObjectProperty>()
-//            .Any(p => p.HasDefaultConstructor) || !entityStructure.Properties.OfType<ValueObjectProperty>().Any();
-
-//        bool everyEntityHasADefaultContructor = entityStructure
-//            .Properties.OfType<EntityProperty>()
-//            .Any(p => p.HasDefaultConstructor) || !entityStructure.Properties.OfType<EntityProperty>().Any();
-
-//        var result = new StringBuilder();
-
-//        if (everyValueObjectHasADefaultConstructor && everyEntityHasADefaultContructor)
-//        {
-//            result.Append($@"
-//    public partial {entityStructure.GetEntitySymbolKindForCode()} {entityStructure.Name}
-//    {{
-//        public {entityStructure.Name}() 
-//        {{");
-
-//            foreach (var dddProperty in entityStructure.Properties.OfType<EntityProperty>())
-//                result.Append(dddProperty.GenerateDefaultConstructorDetail());
-
-//            result.Append($@"
-//        }}
-//    }}
-//");
-//        }
-
-//        return result;
-    return new StringBuilder();
+        var generator = new DefaultConstructorGenerator(entityStructure);
+        return generator.Generate();
     }
 
     private static void CreateAttributes(IncrementalGeneratorPostInitializationContext context)

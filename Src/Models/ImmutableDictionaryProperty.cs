@@ -2,7 +2,7 @@
 
 public sealed class ImmutableDictionaryProperty : CollectionProperty, IEquatable<ImmutableDictionaryProperty>
 {
-    public override string TypeName => $"ImmutableDictionary<{KeyType}, {InnerType.TypeName}>";
+    public override string TypeName => $"ImmutableDictionary<{KeyType.TypeName}, {InnerType.TypeName}>";
     public IType KeyType { get; set; } 
 
     public ImmutableDictionaryProperty(

@@ -9,7 +9,7 @@ public class BuilderGeneratorTest : TestBase
         var source = $@"
 {GetHeadersCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial class Cart
 {{
     public int Id {{ get; private set; }}
@@ -27,7 +27,7 @@ public partial class Cart
         var source = $@"
 {GetHeadersCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial record Cart
 {{
     public int Id {{ get; private set; }}
@@ -50,7 +50,7 @@ public record EntityBase
     public int Id {{ get; private set; }}
 }}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial record Cart : EntityBase
 {{
     public List<int> Collection {{ get; private set;}}
@@ -71,7 +71,7 @@ public partial record Cart : EntityBase
 
 {GetIdentifierValueObjectCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial class Cart
 {{
     public Identifier Id {{ get; private set; }}
@@ -95,7 +95,7 @@ public partial class Cart
 
 {GetCartItemEntityCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial class Cart
 {{
     public CartItem CartItem {{get; set;}}
@@ -118,7 +118,7 @@ public partial class Cart
 
 {GetCartItemEntityCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial class Cart
 {{
     public Option<CartItem> Item {{get; set;}}
@@ -141,7 +141,7 @@ public partial class Cart
 
 {GetIdentifierValueObjectCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial class Cart
 {{
     public List<CartItem> Items {{get; set;}}
@@ -162,7 +162,7 @@ public partial class Cart
 
 {GetIdentifierValueObjectCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial class Cart
 {{
     public Dictionary<int, CartItem> Items {{get; set;}}
@@ -183,7 +183,7 @@ public partial class Cart
 
 {GetIdentifierValueObjectCode()}
 
-{GetAllGrenatDddAttributesCode()}
+{GenerateBuilderAttribute()}
 public partial class Cart
 {{
     public int Id {{get; set;}}

@@ -63,7 +63,7 @@ public {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Description} {
     private BuilderDetailGenerator CreateBuilderDetailGenerator(IProperty property)
     {
         if (property is ValueObjectProperty)
-            return new BuilderDetailGeneratorForValueObjectProperty(property, EntityStructure.Name);
+            return new BuilderDetailGeneratorForValueObject(property, EntityStructure.Name);
         else
             return new BuilderDetailGenerator(property, EntityStructure.Name);
     }

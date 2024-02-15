@@ -39,9 +39,14 @@ namespace BuilderGeneratorTests;
 ";
     }
 
-    public string GetAllGrenatDddAttributesCode()
+    public string GenerateBuilderAttribute()
     {
-        return @"[Entity, GenerateSetters, GenerateBuilder, GenerateDefaultConstructor]";
+        return @"[Entity,GenerateBuilder]";
+    }
+
+    public string GenerateDefaultConstructorAttribute()
+    {
+        return @"[Entity,GenerateDefaultConstructor]";
     }
 
     public string GetAmountValueObjectCode()

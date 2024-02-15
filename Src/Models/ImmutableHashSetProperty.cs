@@ -1,10 +1,10 @@
 ﻿namespace Grenat.Functional.DDD.Generators.Src.Models;
 
-public sealed class ImmutableListProperty : ImmutableCollectionProperty, IEquatable<ImmutableCollectionProperty>
+public sealed class ImmutableHashSetProperty : ImmutableCollectionProperty, IEquatable<ImmutableCollectionProperty>
 {
-    public override string TypeName => $"ImmutableList<{InnerType.TypeName}>";
+    public override string TypeName => $"ImmutableHashSet<{InnerType.TypeName}>";
 
-    public ImmutableListProperty(
+    public ImmutableHashSetProperty(
         string fieldName, 
         IType innerType, 
         bool dontGenerateSetters)
