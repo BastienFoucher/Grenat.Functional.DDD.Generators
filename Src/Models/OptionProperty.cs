@@ -5,11 +5,12 @@ public sealed class OptionProperty : DddProperty, IEquatable<OptionProperty>
     public override string TypeName => $"Option<{InnerType.TypeName}>";
 
     public OptionProperty(
-        string fieldName, 
-        IType innerType,
+        string fieldName,
+        ITypeSymbol typeSymbol,
+        TypeData innerType,
         bool hasDefaultConstructor,
         bool dontGenerateSetters)
-        : base(fieldName, innerType, hasDefaultConstructor, dontGenerateSetters)
+        : base(fieldName, typeSymbol, innerType, hasDefaultConstructor, dontGenerateSetters)
     {
     }
 

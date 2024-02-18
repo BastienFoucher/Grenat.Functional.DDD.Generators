@@ -16,7 +16,8 @@ public static class ISymbolExtensions
             throw new ArgumentException($"Named type symbol {namedTypeSymbol.Name} is not an entity.");
         return new EntityProperty(
                 memberSymbol.Name,
-                new TypeData(namedTypeSymbol.Name),
+                namedTypeSymbol,
+                new TypeData(namedTypeSymbol),
                 memberSymbol.GetNamedTypeSymbol().HasDefaultConstructor(),
                 memberSymbol.NoSetter(context));
     }
@@ -29,8 +30,9 @@ public static class ISymbolExtensions
 
         return new ImmutableDictionaryProperty(
             memberSymbol.Name,
-            new TypeData(namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol().Name),
-            new TypeData(namedTypeSymbol.TypeArguments[1].GetNamedTypeSymbol().Name),
+            namedTypeSymbol,
+            new TypeData(namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol()),
+            new TypeData(namedTypeSymbol.TypeArguments[1].GetNamedTypeSymbol()),
             memberSymbol.NoSetter(context));
     }
 
@@ -42,7 +44,8 @@ public static class ISymbolExtensions
 
         return new ImmutableListProperty(
             memberSymbol.Name,
-            new TypeData(namedTypeSymbol.TypeArguments[0].Name),
+            namedTypeSymbol,
+            new TypeData(namedTypeSymbol.TypeArguments[0]),
             memberSymbol.NoSetter(context));
     }
 
@@ -54,7 +57,8 @@ public static class ISymbolExtensions
 
         return new ImmutableHashSetProperty(
             memberSymbol.Name,
-            new TypeData(namedTypeSymbol.TypeArguments[0].Name),
+            namedTypeSymbol,
+            new TypeData(namedTypeSymbol.TypeArguments[0]),
             memberSymbol.NoSetter(context));
     }
 
@@ -67,7 +71,8 @@ public static class ISymbolExtensions
 
         return new OptionProperty(
             memberSymbol.Name,
-            new TypeData(namedTypeSymbol.TypeArguments[0].Name),
+            namedTypeSymbol,
+            new TypeData(namedTypeSymbol.TypeArguments[0]),
             false,
             memberSymbol.NoSetter(context));
     }
@@ -81,6 +86,7 @@ public static class ISymbolExtensions
         return new ValueProperty(
             memberSymbol.Name,
             namedTypeSymbol.GetNamedTypeSymbol().Name,
+            namedTypeSymbol,
             namedTypeSymbol.TypeArguments,
             memberSymbol.NoSetter(context));
     }
@@ -103,6 +109,7 @@ public static class ISymbolExtensions
             valueObjectInnerProperties = valueObjectInnerProperties.Add(
                 new ValueProperty(valueField.Name,
                     baseTypeSymbol.Name,
+                    namedTypeSymbol,
                     baseTypeSymbol.TypeArguments,
                     false));
         }
@@ -111,7 +118,8 @@ public static class ISymbolExtensions
 
         return new ValueObjectProperty(
                 memberSymbol.Name,
-                new TypeData(namedTypeSymbol.GetNamedTypeSymbol().Name),
+                namedTypeSymbol,
+                new TypeData(namedTypeSymbol.GetNamedTypeSymbol()),
                 valueObjectInnerProperties,
                 hasDefaultConstructor,
                 memberSymbol.NoSetter(context));
@@ -152,12 +160,14 @@ public static class ISymbolExtensions
         return (IMethodSymbol)symbol;
     }
 
-    private static bool VerifyAttribute(this ISymbol symbol,
-        GeneratorSyntaxContext context, 
-        string attributeName)
+    private static bool VerifyAttribute(
+        this ISymbol symbol,
+        string attributeName,
+        GeneratorSyntaxContext? context = null
+        )
     {
         // Ensuring namespace of the attribute comes from this generator
-        if (context.SemanticModel.Compilation.GetTypeByMetadataName($"{NAMESPACE_NAME}.{attributeName}") == null)
+        if (context != null && ((GeneratorSyntaxContext)context).SemanticModel.Compilation.GetTypeByMetadataName($"{NAMESPACE_NAME}.{attributeName}") == null)
             return false;
 
         foreach (var symbolAttribute in symbol.GetAttributes())
@@ -169,45 +179,45 @@ public static class ISymbolExtensions
         return false;
     }
 
-    public static bool IsValueField(this ISymbol symbol, GeneratorSyntaxContext context)
+    public static bool IsValueField(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.IsAPublicFieldOrProperty() && symbol.VerifyAttribute(context, "ValueAttribute");
+        return symbol.IsAPublicFieldOrProperty() && symbol.VerifyAttribute("ValueAttribute", context);
     }
 
-    public static bool IsEntity(this ISymbol symbol, GeneratorSyntaxContext context)
+    public static bool IsEntity(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.VerifyAttribute(context, "EntityAttribute");
+        return symbol.VerifyAttribute("EntityAttribute", context);
     }
 
-    public static bool IsStaticConstructor(this ISymbol symbol, GeneratorSyntaxContext context)
+    public static bool IsStaticConstructor(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.VerifyAttribute(context, "StaticConstructorAttribute");
+        return symbol.VerifyAttribute("StaticConstructorAttribute", context);
     }
 
-    public static bool GenerateSetters(this ISymbol symbol, GeneratorSyntaxContext context)
+    public static bool GenerateSetters(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.VerifyAttribute(context, "GenerateSettersAttribute");
-    }
-
-
-    public static bool IsValueObject(this ISymbol symbol, GeneratorSyntaxContext context)
-    {
-        return symbol.VerifyAttribute(context, "ValueObjectAttribute");
+        return symbol.VerifyAttribute("GenerateSettersAttribute", context);
     }
 
 
-    public static bool NoSetter(this ISymbol symbol, GeneratorSyntaxContext context)
+    public static bool IsValueObject(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.VerifyAttribute(context, "NoSetterAttribute");
+        return symbol.VerifyAttribute("ValueObjectAttribute", context);
     }
 
-    public static bool GenerateBuilder(this ISymbol symbol, GeneratorSyntaxContext context)
+
+    public static bool NoSetter(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.VerifyAttribute(context, "GenerateBuilderAttribute");
+        return symbol.VerifyAttribute("NoSetterAttribute", context);
     }
 
-    public static bool GenerateDefaultConstructor(this ISymbol symbol, GeneratorSyntaxContext context)
+    public static bool GenerateBuilder(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.VerifyAttribute(context, "GenerateDefaultConstructorAttribute");
+        return symbol.VerifyAttribute("GenerateBuilderAttribute", context);
+    }
+
+    public static bool GenerateDefaultConstructor(this ISymbol symbol, GeneratorSyntaxContext? context = null)
+    {
+        return symbol.VerifyAttribute("GenerateDefaultConstructorAttribute", context);
     }
 }

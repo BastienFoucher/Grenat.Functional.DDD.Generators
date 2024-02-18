@@ -127,4 +127,9 @@ public static class INamedTypeSymbolExtensions
                     && m.GetMethodSymbol().MethodKind == MethodKind.Constructor).Any();
     }
 
+    public static string GetFullTypeName(this INamedTypeSymbol namedTypeSymbol)
+    {
+        return namedTypeSymbol.Name;
+    }
+
 }

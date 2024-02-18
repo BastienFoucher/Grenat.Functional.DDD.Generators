@@ -6,11 +6,12 @@ public sealed class ImmutableDictionaryProperty : CollectionProperty, IEquatable
     public IType KeyType { get; set; } 
 
     public ImmutableDictionaryProperty(
-        string fieldName, 
+        string fieldName,
+        ITypeSymbol typeSymbol,
         IType keyTypeName,
-        IType innerType,
+        TypeData innerType,
         bool dontGenerateSetters)
-        : base(fieldName, innerType, dontGenerateSetters)
+        : base(fieldName, typeSymbol, innerType, dontGenerateSetters)
     {
         KeyType = keyTypeName;
     }

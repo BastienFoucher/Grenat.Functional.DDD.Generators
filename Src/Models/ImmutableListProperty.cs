@@ -5,10 +5,11 @@ public sealed class ImmutableListProperty : ImmutableCollectionProperty, IEquata
     public override string TypeName => $"ImmutableList<{InnerType.TypeName}>";
 
     public ImmutableListProperty(
-        string fieldName, 
-        IType innerType, 
+        string fieldName,
+        ITypeSymbol typeSymbol,
+        TypeData innerType, 
         bool dontGenerateSetters)
-        : base(fieldName, innerType, dontGenerateSetters)
+        : base(fieldName, typeSymbol, innerType, dontGenerateSetters)
     {
     }
 

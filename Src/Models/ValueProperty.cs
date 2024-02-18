@@ -7,6 +7,7 @@ public sealed class ValueProperty : IProperty, IEquatable<ValueProperty>
     public string FieldName { get; private set; }
 
     public string TypeName {get; private set;}
+    public ITypeSymbol TypeSymbol { get; private set;}
 
     public ImmutableArray<ITypeSymbol> InnerTypes { get; private set; }
 
@@ -14,10 +15,12 @@ public sealed class ValueProperty : IProperty, IEquatable<ValueProperty>
 
     public ValueProperty(string fieldName,
         string typeName,
+        ITypeSymbol typeSymbol,
         ImmutableArray<ITypeSymbol> innerTypes,
         bool dontGenerateSetters)
     {
         FieldName = fieldName;
+        TypeSymbol = typeSymbol;
         InnerTypes = innerTypes;
         TypeName = GetTypeName(typeName, innerTypes);
         DontGenerateSetters = dontGenerateSetters;

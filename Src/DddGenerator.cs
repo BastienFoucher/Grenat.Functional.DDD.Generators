@@ -65,26 +65,8 @@ namespace {entityStructure.NameSpaceName};");
 
     private static StringBuilder GenerateSetters(EntityStructure entityStructure)
     {
-        var varNameForExtendedRecord = entityStructure.Name.ToLowerFirstChar();
-
-        //    var result = new StringBuilder().Append($@"
-        //public static partial class {entityStructure.Name}Setters
-        //{{");
-
-        //    foreach (var property in entityStructure
-        //        .Properties
-        //        .OfType<EntityProperty>()
-        //        .Where(d => !d.DontGenerateSetters))
-        //    {
-        //        result = result.Append(property.GenerateSetters(entityStructure.Name, varNameForExtendedRecord));
-        //    }
-
-        //    result = result.Append($@"
-        //}}");
-
-        //    return result;
-
-        return new StringBuilder();
+        var generator = new SetterGenerator(entityStructure);
+        return generator.Generate();
     }
 
     public static StringBuilder GenerateBuilder(EntityStructure entityStructure)

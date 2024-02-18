@@ -6,9 +6,10 @@ public abstract class ImmutableCollectionProperty : CollectionProperty
 
     public ImmutableCollectionProperty(
         string fieldName, 
-        IType innerType, 
+        ITypeSymbol typeSymbol,
+        TypeData innerType, 
         bool dontGenerateSetters)
-        : base(fieldName, innerType, dontGenerateSetters)
+        : base(fieldName, typeSymbol, innerType, dontGenerateSetters)
     {
     }
 }

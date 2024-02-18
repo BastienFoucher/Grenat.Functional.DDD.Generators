@@ -1,5 +1,4 @@
 ﻿using Grenat.Functional.DDD.Generators.Src.Extensions;
-using Grenat.Functional.DDD.Generators.Src.Generators.Builder;
 using Grenat.Functional.DDD.Generators.Src.Generators.DefaultConstructor;
 using Grenat.Functional.DDD.Generators.Src.Models;
 using System.ComponentModel;
@@ -43,8 +42,7 @@ public partial {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Descri
 
             result.Append($@"
     }}
-}}
-        ");
+}}");
         }
 
         return result;
@@ -61,5 +59,4 @@ public partial {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Descri
         else
             return new DefaultConstructorDetailGenerator(property, EntityStructure.Name);
     }
-
 }

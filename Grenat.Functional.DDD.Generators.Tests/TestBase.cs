@@ -49,6 +49,11 @@ namespace BuilderGeneratorTests;
         return @"[Entity,GenerateDefaultConstructor]";
     }
 
+    public string GenerateSettersAttribute()
+    {
+        return @"[Entity,GenerateSetters]";
+    }
+
     public string GetAmountValueObjectCode()
     {
         return @"
@@ -131,6 +136,17 @@ public partial class CartItem
 {
     public Identifier Id { get; private set; }
     public Identifier ProductId { get; init; }
+    public Amount Amount { get; init; }
+}";
+    }
+
+    public string GetCouponCode()
+    {
+        return @"
+[Entity]
+public class Coupon
+{
+    public Identifier Id { get; private set; }
     public Amount Amount { get; init; }
 }";
     }

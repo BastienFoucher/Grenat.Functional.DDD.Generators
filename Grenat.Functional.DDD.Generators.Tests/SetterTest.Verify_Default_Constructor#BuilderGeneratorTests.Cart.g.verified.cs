@@ -14,4 +14,3 @@ public partial class Cart
         ItemsDictionary = ImmutableDictionary<Int32, CartItem>.Empty;
     }
 }
-        

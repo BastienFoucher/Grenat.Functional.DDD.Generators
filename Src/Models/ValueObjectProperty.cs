@@ -9,11 +9,12 @@ public sealed class ValueObjectProperty : DddProperty, IEquatable<ValueObjectPro
 
     public ValueObjectProperty(
         string fieldName,
-        IType innerType,
+        ITypeSymbol typeSymbol,
+        TypeData innerType,
         IEnumerable<IProperty> valueObjectFields,
         bool hasDefaultConstructor,
         bool dontGenerateSetters)
-        : base(fieldName, innerType, hasDefaultConstructor, dontGenerateSetters)
+        : base(fieldName, typeSymbol, innerType, hasDefaultConstructor, dontGenerateSetters)
     {
         Fields = valueObjectFields;
     }

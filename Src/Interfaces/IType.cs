@@ -3,4 +3,5 @@
 public interface IType
 {
     string TypeName { get; }
+    ITypeSymbol TypeSymbol { get; }
 }

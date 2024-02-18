@@ -5,10 +5,11 @@ public sealed class ImmutableHashSetProperty : ImmutableCollectionProperty, IEqu
     public override string TypeName => $"ImmutableHashSet<{InnerType.TypeName}>";
 
     public ImmutableHashSetProperty(
-        string fieldName, 
-        IType innerType, 
+        string fieldName,
+        ITypeSymbol typeSymbol,
+        TypeData innerType, 
         bool dontGenerateSetters)
-        : base(fieldName, innerType, dontGenerateSetters)
+        : base(fieldName, typeSymbol, innerType, dontGenerateSetters)
     {
     }
 

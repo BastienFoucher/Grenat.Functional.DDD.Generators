@@ -6,10 +6,11 @@ public sealed class EntityProperty : DddProperty, IEquatable<EntityProperty>
 
     public EntityProperty(
         string fieldName, 
-        IType innerType,
+        ITypeSymbol typeSymbol,
+        TypeData innerType,
         bool hasDefaultConstructor, 
         bool dontGenerateSetters)
-        : base(fieldName, innerType, hasDefaultConstructor, dontGenerateSetters)
+        : base(fieldName, typeSymbol, innerType, hasDefaultConstructor, dontGenerateSetters)
     {
     }
 
