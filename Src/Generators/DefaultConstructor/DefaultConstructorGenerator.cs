@@ -50,10 +50,10 @@ public partial {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Descri
 
     private DefaultConstructorDetailGenerator CreateDefaultConstructorDetailGenerator(IProperty property)
     {
-        if (property is ImmutableCollectionProperty)
-            return new DefaultConstructorDetailGeneratorForImmutableCollection(property, EntityStructure.Name);
-        else if (property is ImmutableDictionaryProperty)
-            return new DefaultConstructorDetailForImmutableDictionaryProperty(property, EntityStructure.Name);
+        if (property is SimpleCollectionProperty)
+            return new DefaultConstructorDetailGeneratorForCollection(property, EntityStructure.Name);
+        else if (property is DictionaryProperty)
+            return new DefaultConstructorDetailForDictionaryProperty(property, EntityStructure.Name);
         else if (property is OptionProperty)
             return new DefaultConstructorDetailGeneratorForOption(property, EntityStructure.Name);
         else

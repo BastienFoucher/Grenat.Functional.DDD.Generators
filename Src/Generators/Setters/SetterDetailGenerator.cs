@@ -2,8 +2,8 @@
 
 internal abstract class SetterDetailGenerator
 {
-    protected IProperty Property { get; set; }
-    protected string ParentSymbolName { get; set; }
+    protected IProperty Property { get; }
+    protected string ParentSymbolName { get; }
 
     internal SetterDetailGenerator(IProperty property, string parentClassOrRecordName)
     {

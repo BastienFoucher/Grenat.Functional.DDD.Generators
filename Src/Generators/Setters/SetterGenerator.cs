@@ -20,29 +20,31 @@ internal class SetterGenerator : IGenerator
         var result = new StringBuilder();
 
         result.Append($@"
-public static partial {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Description} {EntityStructure.Name}Setters
+public static class {EntityStructure.Name}Setters
 {{");
 
-            foreach (var property in EntityStructure
-                .Properties
-                .Where(d => !d.DontGenerateSetters))
+        foreach (var property in EntityStructure
+            .Properties
+            .Where(d => !d.DontGenerateSetters))
 
-                result.Append(CreateSetterDetailGenerator(property).Generate());
+            result.Append(CreateSetterDetailGenerator(property).Generate());
 
         result.Append($@"
 }}");
         return result;
     }
 
-    private SetterDetailGenerator CreateSetterDetailGenerator(IProperty property)
-    {
-        if (EntityStructure.Kind == EntitySymbolKind.Record)
+    private SetterDetailGenerator CreateSetterDetailGenerator(IProperty property) =>
+        EntityStructure.Kind switch
         {
-            if (property is OptionProperty)
-                return new RecordSetterDetailGeneratorForOption(property, EntityStructure.Name);
-            else if (property is ImmutableCollectionProperty)
-                return new RecordSetterDetailGeneratorForImmutableCollection(property, EntityStructure.Name);
-        }
-        throw new NotImplementedException();
-    }
+            EntitySymbolKind.Record => property switch
+            {
+                OptionProperty => new RecordSetterDetailGeneratorForOption(property, EntityStructure.Name),
+                SimpleCollectionProperty => new RecordSetterDetailGeneratorForCollection(property, EntityStructure.Name),
+                DictionaryProperty => new RecordSetterDetailGeneratorForDictionary(property, EntityStructure.Name),
+                IProperty => new RecordSetterDetailGenerator(property, EntityStructure.Name),
+            },
+            _ => throw new NotImplementedException()
+
+        };
 }

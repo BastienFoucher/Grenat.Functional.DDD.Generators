@@ -11,8 +11,8 @@ public class CartBuilder
         return this;
     }
 
-    private List<int> _collection { get; set; }
-    public Cart WithCollection(List<int> collection)
+    private List<Int32> _collection { get; set; }
+    public Cart WithCollection(List<Int32> collection)
     {
         _collection = collection;
         return this;

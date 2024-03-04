@@ -4,7 +4,9 @@ namespace Grenat.Functional.DDD.Generators.Src.Models;
 
 public abstract class DddProperty : IProperty
 {
-    public string FieldName { get;}
+    public ISymbol Symbol { get;}
+    public string FieldName => Symbol.Name;
+    public string Accessibility => Symbol.GetAccessibility();
     public abstract string TypeName { get;}
     public TypeData InnerType { get; }
     public ITypeSymbol TypeSymbol { get; }
@@ -13,13 +15,13 @@ public abstract class DddProperty : IProperty
     
 
     protected DddProperty(
-        string fieldName,
+        ISymbol symbol,
         ITypeSymbol typeSymbol,
         TypeData innerType,
         bool hasDefaultConstructor, 
         bool dontGenerateSetters)
     {
-        FieldName = fieldName;
+        Symbol = symbol;
         InnerType = innerType; 
         DontGenerateSetters = dontGenerateSetters;
         HasDefaultConstructor = hasDefaultConstructor;

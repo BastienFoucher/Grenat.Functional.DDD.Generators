@@ -3,16 +3,16 @@ using Grenat.Functional.DDD.Generators.Src.Models;
 
 namespace Grenat.Functional.DDD.Generators.Src.Generators.DefaultConstructor;
 
-internal class RecordSetterDetailGeneratorForImmutableCollection : SetterDetailGenerator
+internal class RecordSetterDetailGeneratorForCollection : SetterDetailGenerator
 {
-    private ImmutableCollectionProperty _immutableCollectionProperty;
+    private SimpleCollectionProperty _collectionProperty;
 
-    internal RecordSetterDetailGeneratorForImmutableCollection(
+    internal RecordSetterDetailGeneratorForCollection(
         IProperty property, 
         string parentClassOrRecordName)
     : base(property, parentClassOrRecordName) 
     {
-        _immutableCollectionProperty = (ImmutableCollectionProperty)property;
+        _collectionProperty = (SimpleCollectionProperty)property;
     }
 
     public override StringBuilder Generate()
@@ -22,17 +22,12 @@ internal class RecordSetterDetailGeneratorForImmutableCollection : SetterDetailG
         var parentParamName = ParentSymbolName.ToLowerFirstChar();
 
        return new StringBuilder().Append($@"
-    public static {ParentSymbolName} Set{propertyName}(this {ParentSymbolName} {parentParamName}, {Property.TypeName} {setterParameterName})
-    {{
-        return {parentParamName} with {{ {setterParameterName} = {setterParameterName} }};
-    }}
-
-    public static Entity<{ParentSymbolName}> Set{propertyName}(this {ParentSymbolName} {parentParamName}, ICollection<{_immutableCollectionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
+    {Property.Accessibility} static Entity<{ParentSymbolName}> Set{propertyName}(this {ParentSymbolName} {parentParamName}, ICollection<{_collectionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
     {{
         return {parentParamName}.SetCollection({setterParameterName}, static ({parentParamName}, {setterParameterName}) => {parentParamName} with {{ {propertyName} = {setterParameterName} }});
     }}
 
-    public static Entity<{ParentSymbolName}> Set{propertyName}(this Entity<{ParentSymbolName}> {parentParamName}, ICollection<{_immutableCollectionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
+    {Property.Accessibility} static Entity<{ParentSymbolName}> Set{propertyName}(this Entity<{ParentSymbolName}> {parentParamName}, ICollection<{_collectionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
     {{
         return {parentParamName}.SetCollection({setterParameterName}, static ({parentParamName}, {setterParameterName}) => {parentParamName} with {{ {propertyName} = {setterParameterName} }});
     }}

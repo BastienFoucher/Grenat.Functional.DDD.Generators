@@ -4,8 +4,8 @@ namespace BuilderGeneratorTests;
     
 public class CartBuilder
 {
-    private Dictionary<int, CartItem> _items { get; set; }
-    public Cart WithItems(Dictionary<int, CartItem> items)
+    private Dictionary<Int32, CartItem> _items { get; set; }
+    public Cart WithItems(Dictionary<Int32, CartItem> items)
     {
         _items = items;
         return this;

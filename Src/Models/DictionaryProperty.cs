@@ -1,28 +1,34 @@
 ﻿namespace Grenat.Functional.DDD.Generators.Src.Models;
 
-public sealed class ImmutableDictionaryProperty : CollectionProperty, IEquatable<ImmutableDictionaryProperty>
+public sealed class DictionaryProperty : CollectionProperty, IEquatable<DictionaryProperty>
 {
-    public override string TypeName => $"ImmutableDictionary<{KeyType.TypeName}, {InnerType.TypeName}>";
+    public override string TypeName => IsImmutable switch
+    {
+        true => $"ImmutableDictionary<{KeyType.TypeName}, {InnerType.TypeName}>",
+        _ => $"Dictionary<{KeyType.TypeName}, {InnerType.TypeName}>"
+    };
+
     public IType KeyType { get; set; } 
 
-    public ImmutableDictionaryProperty(
-        string fieldName,
+    public DictionaryProperty(
+        ISymbol symbol,
         ITypeSymbol typeSymbol,
         IType keyTypeName,
         TypeData innerType,
         bool dontGenerateSetters)
-        : base(fieldName, typeSymbol, innerType, dontGenerateSetters)
+        : base(symbol, typeSymbol, innerType, dontGenerateSetters)
     {
+        IsImmutable = typeSymbol.Name.Contains("Immutable");
         KeyType = keyTypeName;
     }
 
     #region IEquatable
     public override bool Equals(object obj)
     {
-        return Equals(obj as ImmutableDictionaryProperty);
+        return Equals(obj as DictionaryProperty);
     }
 
-    public bool Equals(ImmutableDictionaryProperty other)
+    public bool Equals(DictionaryProperty other)
     {
         return other is not null &&
                FieldName == other.FieldName &&

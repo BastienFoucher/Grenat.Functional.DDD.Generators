@@ -1,9 +1,9 @@
 ﻿namespace SampleProject.Entities;
 
 [Entity, GenerateBuilder, GenerateSetters, GenerateDefaultConstructor]
-public partial class CartItem
+public partial record CartItem
 {
-    public Identifier Id { get; private set; }
+    public Identifier Id { get; init; }
     public Identifier ProductId { get; init; }
     public Amount Amount { get; init; }
 
@@ -11,8 +11,9 @@ public partial class CartItem
     public static Entity<CartItem> Create(string idValue, string productIdValue, int amountValue, string amountCurrency)
     {
         return Entity<CartItem>.Valid(new CartItem())
-            .SetId(idValue)
-            .SetProductId(productIdValue)
-            .SetAmount(amountValue, amountCurrency);
+            .SetId(Identifier.Create(idValue))
+            .SetProductId(Identifier.Create(productIdValue))
+            .SetAmount(Amount.Create(amountValue, amountCurrency));
     }
+
 }

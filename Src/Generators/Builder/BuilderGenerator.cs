@@ -19,12 +19,12 @@ internal class BuilderGenerator : IGenerator
 
     public virtual StringBuilder Generate()
     {
-        if (!EntityStructure.HasDefaultContructor) 
-            return new StringBuilder(); 
+        if (!EntityStructure.HasStaticConstructor)
+            return new StringBuilder();
 
         var result = new StringBuilder().Append($@"
     
-public {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Description} {BuilderName}
+public class {BuilderName}
 {{");
 
         ImmutableList<string> allGeneratedBuilderFields = ImmutableList<string>.Empty;
@@ -56,15 +56,14 @@ public {EntityStructure.Kind.GetAttribute<DescriptionAttribute>().Description} {
         }
 
         return new StringBuilder().Append($@"
-    public {StaticConstructor.ReturningType} Build() => {StaticConstructor.Name}({body.ToString().RemoveLastChars(2)});
+    public {StaticConstructor.ReturningType} Build() => {EntityStructure.Name}.{StaticConstructor.Name}({body.ToString().RemoveLastChars(2)});
 ");
     }
 
-    private BuilderDetailGenerator CreateBuilderDetailGenerator(IProperty property)
-    {
-        if (property is ValueObjectProperty)
-            return new BuilderDetailGeneratorForValueObject(property, EntityStructure.Name);
-        else
-            return new BuilderDetailGenerator(property, EntityStructure.Name);
-    }
+    private BuilderDetailGenerator CreateBuilderDetailGenerator(IProperty property) =>
+        property switch {
+            ValueObjectProperty => new BuilderDetailGeneratorForValueObject(property, EntityStructure.Name, BuilderName),
+            _ => new BuilderDetailGenerator(property, EntityStructure.Name, BuilderName)
+        };
+    
 }

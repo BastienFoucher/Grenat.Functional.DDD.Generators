@@ -22,19 +22,14 @@ internal class RecordSetterDetailGeneratorForOption : SetterDetailGenerator
         var parentParamName = ParentSymbolName.ToLowerFirstChar();
 
        return new StringBuilder().Append($@"
-    public static {ParentSymbolName} Set{propertyName}(this {ParentSymbolName} {parentParamName}, {Property.TypeName} {setterParameterName})
+    {Property.Accessibility} static Entity<{ParentSymbolName}> Set{propertyName}(this {ParentSymbolName} {parentParamName}, Option<{_optionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
     {{
-        return {setterParameterName} with {{ {propertyName} = {setterParameterName} }};
+        return {parentParamName}.SetOption({propertyName}, static ({parentParamName}, {setterParameterName}) => {parentParamName} with {{ {propertyName} = {setterParameterName} }});
     }}
 
-    public static Entity<{ParentSymbolName}> Set{propertyName}(this {ParentSymbolName} {parentParamName}, Option<{_optionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
+    {Property.Accessibility} static Entity<{ParentSymbolName}> Set{propertyName}(this Entity<{ParentSymbolName}> {parentParamName}, Option<{_optionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
     {{
-        return {setterParameterName}.SetOption({propertyName}, static ({parentParamName}, {setterParameterName}) => {parentParamName} with {{ {propertyName} = {setterParameterName} }});
-    }}
-
-    public static Entity<{ParentSymbolName}> Set{propertyName}(this Entity<{ParentSymbolName}> {parentParamName}, Option<{_optionProperty.InnerType.TypeNameWithDddContainer}> {setterParameterName})
-    {{
-        return {setterParameterName}.SetOption({propertyName}, static ({parentParamName}, {setterParameterName}) => {parentParamName} with {{ {propertyName} = {setterParameterName} }});
+        return {parentParamName}.SetOption({propertyName}, static ({parentParamName}, {setterParameterName}) => {parentParamName} with {{ {propertyName} = {setterParameterName} }});
     }}
 ");
     }

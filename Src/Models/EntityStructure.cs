@@ -23,6 +23,7 @@ public class EntityStructure
     public bool GenerateBuilder { get; private set; }
     public bool GenerateDefaultConstructor { get; private set; }
     public bool HasDefaultContructor { get; private set; }
+    public bool HasStaticConstructor { get; private set; }
 
     public EntityStructure(GeneratorSyntaxContext context)
     {
@@ -44,5 +45,6 @@ public class EntityStructure
         GenerateBuilder = entitySymbol.GenerateBuilder(context);
         GenerateDefaultConstructor = entitySymbol.GenerateDefaultConstructor(context);
         HasDefaultContructor = entitySymbol.HasDefaultConstructor();
+        HasStaticConstructor = StaticConstructor.Any;
     }
 }

@@ -4,13 +4,15 @@ namespace Grenat.Functional.DDD.Generators.Src.Generators.Builder;
 
 internal class BuilderDetailGenerator
 {
-    protected IProperty Property { get; set; }
-    protected string ParentSymbolName { get; set; }
+    protected IProperty Property { get; }
+    protected string ParentSymbolName { get; }
+    protected string BuilderName {  get; }
 
-    internal BuilderDetailGenerator(IProperty property, string parentClassOrRecordName)
+    internal BuilderDetailGenerator(IProperty property, string parentClassOrRecordName, string builderName)
     {
         Property = property;
         ParentSymbolName = parentClassOrRecordName;
+        BuilderName = builderName;
     }
 
     public virtual (StringBuilder, ImmutableList<string>) Generate()
@@ -20,7 +22,7 @@ internal class BuilderDetailGenerator
 
         return (new StringBuilder().Append($@"
     private {Property.TypeName} {this.GetPrivateBuilderFieldName()} {{ get; set; }}
-    public {ParentSymbolName} With{Property.FieldName}({Property.TypeName} {Property.FieldName.ToLowerFirstChar()})
+    public {BuilderName} With{Property.FieldName}({Property.TypeName} {Property.FieldName.ToLowerFirstChar()})
     {{
         {GetPrivateBuilderFieldName()} = {Property.FieldName.ToLowerFirstChar()};
         return this;

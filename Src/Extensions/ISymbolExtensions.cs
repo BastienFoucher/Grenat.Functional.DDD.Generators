@@ -15,53 +15,39 @@ public static class ISymbolExtensions
         if (!namedTypeSymbol.IsEntity(context))
             throw new ArgumentException($"Named type symbol {namedTypeSymbol.Name} is not an entity.");
         return new EntityProperty(
-                memberSymbol.Name,
+                memberSymbol,
                 namedTypeSymbol,
                 new TypeData(namedTypeSymbol),
                 memberSymbol.GetNamedTypeSymbol().HasDefaultConstructor(),
                 memberSymbol.NoSetter(context));
     }
 
-    public static ImmutableDictionaryProperty GetImmutableDictionaryProperty(
+    public static DictionaryProperty GetDictionaryProperty(
         this ISymbol memberSymbol,
         GeneratorSyntaxContext context)
     {
         var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
 
-        return new ImmutableDictionaryProperty(
-            memberSymbol.Name,
+        return new DictionaryProperty(
+            memberSymbol,
             namedTypeSymbol,
             new TypeData(namedTypeSymbol.TypeArguments[0].GetNamedTypeSymbol()),
             new TypeData(namedTypeSymbol.TypeArguments[1].GetNamedTypeSymbol()),
             memberSymbol.NoSetter(context));
     }
 
-    public static ImmutableCollectionProperty GetImmutableCollectionProperty(
+    public static SimpleCollectionProperty GetCollectionProperty(
         this ISymbol memberSymbol,
         GeneratorSyntaxContext context)
     {
         var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
 
-        return new ImmutableListProperty(
-            memberSymbol.Name,
+        return new SimpleCollectionProperty(
+            memberSymbol,
             namedTypeSymbol,
             new TypeData(namedTypeSymbol.TypeArguments[0]),
             memberSymbol.NoSetter(context));
     }
-
-    public static ImmutableCollectionProperty GetImmutableHashSetProperty(
-    this ISymbol memberSymbol,
-    GeneratorSyntaxContext context)
-    {
-        var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
-
-        return new ImmutableHashSetProperty(
-            memberSymbol.Name,
-            namedTypeSymbol,
-            new TypeData(namedTypeSymbol.TypeArguments[0]),
-            memberSymbol.NoSetter(context));
-    }
-
 
     public static OptionProperty GetOptionableProperty(
         this ISymbol memberSymbol,
@@ -70,7 +56,7 @@ public static class ISymbolExtensions
         var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
 
         return new OptionProperty(
-            memberSymbol.Name,
+            memberSymbol,
             namedTypeSymbol,
             new TypeData(namedTypeSymbol.TypeArguments[0]),
             false,
@@ -84,7 +70,7 @@ public static class ISymbolExtensions
         var namedTypeSymbol = memberSymbol.GetNamedTypeSymbol();
 
         return new ValueProperty(
-            memberSymbol.Name,
+            memberSymbol,
             namedTypeSymbol.GetNamedTypeSymbol().Name,
             namedTypeSymbol,
             namedTypeSymbol.TypeArguments,
@@ -107,7 +93,7 @@ public static class ISymbolExtensions
         {
             var baseTypeSymbol = valueField.GetNamedTypeSymbol();
             valueObjectInnerProperties = valueObjectInnerProperties.Add(
-                new ValueProperty(valueField.Name,
+                new ValueProperty(valueField,
                     baseTypeSymbol.Name,
                     namedTypeSymbol,
                     baseTypeSymbol.TypeArguments,
@@ -117,7 +103,7 @@ public static class ISymbolExtensions
         var hasDefaultConstructor = namedTypeSymbol.HasDefaultConstructor();
 
         return new ValueObjectProperty(
-                memberSymbol.Name,
+                memberSymbol,
                 namedTypeSymbol,
                 new TypeData(namedTypeSymbol.GetNamedTypeSymbol()),
                 valueObjectInnerProperties,
@@ -125,10 +111,10 @@ public static class ISymbolExtensions
                 memberSymbol.NoSetter(context));
     }
 
-    public static bool IsAPublicFieldOrProperty(this ISymbol symbol)
+    public static bool IsAFieldOrProperty(this ISymbol symbol)
     {
-        return (symbol.Kind.Equals(SymbolKind.Property)) || (symbol.Kind.Equals(SymbolKind.Field))
-                                && symbol.DeclaredAccessibility == Accessibility.Public;
+        return (symbol.Kind.Equals(SymbolKind.Property) || symbol.Kind.Equals(SymbolKind.Field))
+            && (!symbol.Name.Contains("BackingField"));
     }
 
     public static bool IsAPublicMethod(this ISymbol symbol)
@@ -181,7 +167,7 @@ public static class ISymbolExtensions
 
     public static bool IsValueField(this ISymbol symbol, GeneratorSyntaxContext? context = null)
     {
-        return symbol.IsAPublicFieldOrProperty() && symbol.VerifyAttribute("ValueAttribute", context);
+        return symbol.IsAFieldOrProperty() && symbol.VerifyAttribute("ValueAttribute", context);
     }
 
     public static bool IsEntity(this ISymbol symbol, GeneratorSyntaxContext? context = null)
@@ -220,4 +206,12 @@ public static class ISymbolExtensions
     {
         return symbol.VerifyAttribute("GenerateDefaultConstructorAttribute", context);
     }
+
+    public static string GetAccessibility(this ISymbol symbol) =>
+        symbol.DeclaredAccessibility switch
+        {
+            Accessibility.ProtectedOrInternal => "protected",
+            Accessibility.ProtectedAndFriend => "protected",
+            _ => symbol.DeclaredAccessibility.ToString().ToLower()
+        };
 }

@@ -46,7 +46,8 @@ public static class INamedTypeSymbolExtensions
         var properties = ImmutableList<IProperty>.Empty;
 
         foreach (var member in entitySymbol.GetMembersAndBaseMembers()
-            .Where(ms => ms.IsAPublicFieldOrProperty() && ms.Name != "EqualityContract"))
+            .Where(ms => ms.IsAFieldOrProperty() 
+                            && ms.Name != "EqualityContract"))
         {
             var namedTypeSymbol = member.GetNamedTypeSymbol();
 
@@ -59,14 +60,11 @@ public static class INamedTypeSymbolExtensions
             else if (namedTypeSymbol.IsOption(context))
                 properties = properties.Add(member.GetOptionableProperty(context));
 
-            else if (namedTypeSymbol.IsImmutableList(context))
-                properties = properties.Add(member.GetImmutableCollectionProperty(context));
+            else if (namedTypeSymbol.IsCollection(context))
+                properties = properties.Add(member.GetCollectionProperty(context));
 
-            else if (namedTypeSymbol.IsImmutableHashSet(context))
-                properties = properties.Add(member.GetImmutableHashSetProperty(context));
-
-            else if (namedTypeSymbol.IsImmutableDictionary(context))
-                properties = properties.Add(member.GetImmutableDictionaryProperty(context));
+            else if (namedTypeSymbol.IsDictionary(context))
+                properties = properties.Add(member.GetDictionaryProperty(context));
 
             //else if (namedTypeSymbol.IsContainerizedDddProperty(context))
             //    properties = properties.Add(namedTypeSymbol.GetContainerizedDddProperty(context));
@@ -94,20 +92,18 @@ public static class INamedTypeSymbolExtensions
     }
 
 
-    public static bool IsImmutableList(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
+    public static bool IsCollection(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
     {
-        return namedTypeSymbol.Name == "ImmutableList";
+        return namedTypeSymbol.Name.Contains("List")
+            || namedTypeSymbol.Name.Contains("HashSet")
+            || namedTypeSymbol.Name.Contains("Array");
+
     }
 
-    public static bool IsImmutableHashSet(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
-    {
-        return namedTypeSymbol.Name == "ImmutableHashSet";
-    }
-
-    public static bool IsImmutableDictionary(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
+    public static bool IsDictionary(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)
     {
         //return namedTypeSymbol.Name == "ImmutableDictionary" && namedTypeSymbol.TypeArguments[1].GetNamedTypeSymbol().IsEntity(context);
-        return namedTypeSymbol.Name == "ImmutableDictionary";
+        return namedTypeSymbol.Name.Contains("Dictionary");
     }
 
     public static bool IsOption(this INamedTypeSymbol namedTypeSymbol, GeneratorSyntaxContext context)

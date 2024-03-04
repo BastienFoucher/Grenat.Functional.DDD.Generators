@@ -8,8 +8,9 @@ internal class BuilderDetailGeneratorForValueObject : BuilderDetailGenerator
 
     public BuilderDetailGeneratorForValueObject(
         IProperty property,
-        string parentClassOrRecordName)
-        : base(property, parentClassOrRecordName)
+        string parentClassOrRecordName,
+        string builderName)
+        : base(property, parentClassOrRecordName, builderName)
     {
         ValueObjectProperty = (ValueObjectProperty)property;
     }
@@ -39,13 +40,13 @@ internal class BuilderDetailGeneratorForValueObject : BuilderDetailGenerator
         generatedPrivateFields = generatedPrivateFields.Add(this.GetPrivateBuilderFieldName());
 
         result.Append($@"
-    public {ParentSymbolName} With{Property.FieldName}({setterParametersList.ToString().RemoveLastChars(2)})
+    public {BuilderName} With{Property.FieldName}({setterParametersList.ToString().RemoveLastChars(2)})
     {{{setterArgumentsList}
         return this;
     }}
 
     private {Property.TypeName} {this.GetPrivateBuilderFieldName()} {{ get; set; }}
-    public {ParentSymbolName} With{ValueObjectProperty.FieldName}({ValueObjectProperty.TypeName} {Property.FieldName.ToLowerFirstChar()})
+    public {BuilderName} With{ValueObjectProperty.Symbol}({ValueObjectProperty.TypeName} {Property.FieldName.ToLowerFirstChar()})
     {{
         {this.GetPrivateBuilderFieldName()} = {Property.FieldName.ToLowerFirstChar()};
         return this;
